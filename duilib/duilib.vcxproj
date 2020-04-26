@@ -319,6 +319,7 @@
     <ClCompile Include="Box\TileBox.cpp" />
     <ClCompile Include="Box\VBox.cpp" />
     <ClCompile Include="Control\CircleProgress.cpp" />
+    <ClCompile Include="Control\Grid.cpp" />
     <ClCompile Include="Control\VirtualListBox.cpp" />
     <ClCompile Include="Core\Define.cpp" />
     <ClCompile Include="Core\Image.cpp" />
@@ -371,6 +372,7 @@
     <ClInclude Include="Box\TileBox.h" />
     <ClInclude Include="Box\VBox.h" />
     <ClInclude Include="Control\CircleProgress.h" />
+    <ClInclude Include="Control\Grid.h" />
     <ClInclude Include="Control\VirtualListBox.h" />
     <ClInclude Include="Core\Image.h" />
     <ClInclude Include="Core\Placeholder.h" />
@@ -416,6 +418,9 @@
     <ClInclude Include="Control\ScrollBar.h" />
     <ClInclude Include="Control\Slider.h" />
     <ClInclude Include="Control\TreeView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\bin\resources\themes\default\global.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

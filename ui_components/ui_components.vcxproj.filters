@@ -49,6 +49,9 @@
     <Filter Include="cef_control\manager">
       <UniqueIdentifier>{f2d952a7-0fa0-4aa2-b596-1e5294c94c0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="comboex">
+      <UniqueIdentifier>{f49e1718-de9f-477c-bad3-d20cf5d3be1e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -135,6 +138,12 @@
     <ClInclude Include="public_define.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="comboex\CheckCombo.h">
+      <Filter>comboex</Filter>
+    </ClInclude>
+    <ClInclude Include="comboex\FilterCombo.h">
+      <Filter>comboex</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -205,6 +214,12 @@
     </ClCompile>
     <ClCompile Include="cef_control\util\memory_dc.cpp">
       <Filter>cef_control\util</Filter>
+    </ClCompile>
+    <ClCompile Include="comboex\CheckCombo.cpp">
+      <Filter>comboex</Filter>
+    </ClCompile>
+    <ClCompile Include="comboex\FilterCombo.cpp">
+      <Filter>comboex</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

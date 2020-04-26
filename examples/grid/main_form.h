@@ -6,11 +6,11 @@ enum ThreadId
 	kThreadGlobalMisc
 };
 
-class ControlForm : public ui::WindowImplBase
+class MainForm : public ui::WindowImplBase
 {
 public:
-	ControlForm();
-	~ControlForm();
+	MainForm();
+	~MainForm();
 
 	/**
 	 * 一下三个接口是必须要覆写的接口，父类会调用这三个接口来构建窗口
@@ -21,7 +21,6 @@ public:
 	virtual std::wstring GetSkinFolder() override;
 	virtual std::wstring GetSkinFile() override;
 	virtual std::wstring GetWindowClassName() const override;
-	virtual ui::Control* CreateControl(const std::wstring& pstrClass) override;
 
 	/**
 	 * 收到 WM_CREATE 消息时该函数会被调用，通常做一些控件初始化的操作
@@ -39,19 +38,6 @@ public:
 	static const std::wstring kClassName;
 
 private:
-	/**
-	 * 被投递到杂事线程读取 xml 数据的任务函数
-	 */
-	void LoadRichEditData();
-
-	/**
-	 * 用于在杂事线程读取 xml 完成后更新 UI 内容的接口
-	 */
-	void OnResourceFileLoaded(const std::wstring& xml);
-
-	/**
-	 * 动态更新进度条接口
-	 */
-	void OnProgressValueChagned(float value);
+	
 };
 
