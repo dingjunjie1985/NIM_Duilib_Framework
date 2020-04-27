@@ -65,5 +65,11 @@
     <Xml Include="..\..\bin\resources\themes\default\controls\controls.xml">
       <Filter>资源文件</Filter>
     </Xml>
+    <Xml Include="..\..\bin\resources\themes\default\menu\settings_menu.xml">
+      <Filter>资源文件</Filter>
+    </Xml>
+    <Xml Include="..\..\bin\resources\themes\default\menu\submenu.xml">
+      <Filter>资源文件</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

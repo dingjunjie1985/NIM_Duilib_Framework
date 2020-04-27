@@ -209,7 +209,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\bin\resources\themes\default\controls\controls.xml" />
+    <Xml Include="..\..\bin\resources\themes\default\controls\controls.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+    <Xml Include="..\..\bin\resources\themes\default\menu\settings_menu.xml" />
+    <Xml Include="..\..\bin\resources\themes\default\menu\submenu.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
