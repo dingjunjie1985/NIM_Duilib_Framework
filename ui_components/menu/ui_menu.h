@@ -113,10 +113,24 @@ public:
 	virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
 
 	bool CheckSubMenuItem();
+
+	virtual bool AddSubMenuItem(CMenuElementUI* pMenuItem);
+	virtual bool AddSubMenuItemAt(CMenuElementUI* pMenuItem, std::size_t iIndex);
+	virtual bool RemoveSubMenuItem(CMenuElementUI* pMenuItem);
+	virtual bool RemoveSubMenuItemAt(std::size_t iIndex);
+	virtual bool RemoveAllSubMenuItem();
+	virtual CMenuElementUI* GetSubMenuItemAt(std::size_t iIndex) const;
+	virtual int GetSubMenuItemCount() const{ return m_child_menus.size(); };
+
 private:
-	
+	virtual bool Add(Control* pControl) override;
+
+private:
 	void CreateMenuWnd();
 	CMenuWnd*	m_pSubWindow;
+
+protected:
+	std::vector<CMenuElementUI*> m_child_menus;
 };
 
 } // namespace nim_comp

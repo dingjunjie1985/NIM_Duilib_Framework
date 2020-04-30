@@ -85,16 +85,25 @@ void CMenuWnd::OnFinalMessage(HWND hWnd)
 	RemoveObserver();
 	if (m_pOwner != NULL) {
 		m_pLayout->SelectItem(-1);
+#if 0
 		for (int i = 0; i < m_pLayout->GetCount(); i++) {
 			CMenuElementUI* pItem = static_cast<CMenuElementUI*>(m_pLayout->GetItemAt(i)); //这里确定是CMenuElementUI*，static_cast效率高
 			if (pItem)
 			{
 				pItem->SetOwner(dynamic_cast<IListOwner*>(m_pOwner->GetParent()));//这里的父控件可能仍然是menuitem,那么置空即可
 				pItem->SetWindow(m_pOwner->GetWindow(), m_pOwner, false);         //更改item的归属
-// 				pItem->SetVisible(false);
  				pItem->SetInternVisible(false);
 			}
 		}
+#else 
+		for (int i = 0; i < m_pOwner->GetSubMenuItemCount(); i++) {
+			CMenuElementUI* pItem = static_cast<CMenuElementUI*>(m_pOwner->GetSubMenuItemAt(i)); 
+			if (pItem)
+			{
+				pItem->SetInternVisible(true);
+			}
+		}
+#endif
 		m_pLayout->RemoveAll();
 		m_pOwner->m_pSubWindow = NULL;
 		//m_pOwner->m_uButtonState &= ~UISTATE_PUSHED;  这里可能需要替换，暂时注释
@@ -425,8 +434,8 @@ void CMenuWnd::InitWindow()
 		ASSERT(m_pLayout);
 		m_pLayout->SetAutoDestroy(false);
 
-		for (int i = 0; i < m_pOwner->GetCount(); i++) {
-			CMenuElementUI* subMenuItem = dynamic_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i));
+		for (int i = 0; i < m_pOwner->GetSubMenuItemCount(); i++) {
+			CMenuElementUI* subMenuItem = dynamic_cast<CMenuElementUI*>(m_pOwner->GetSubMenuItemAt(i));
 			if (subMenuItem && subMenuItem->IsVisible())
 			{
 				//此时子菜单item属于2个子菜单，注意生命周期的维护，子菜单窗口退出不能销毁控件，需要归还原控件，
@@ -465,6 +474,79 @@ m_pSubWindow(nullptr)
 CMenuElementUI::~CMenuElementUI()
 {}
 
+bool CMenuElementUI::Add(Control* pControl)
+{
+	CMenuElementUI *pMenuItem = dynamic_cast<CMenuElementUI*>(pControl);
+	if (!pMenuItem)
+		return __super::Add(pControl);
+	if (std::find(m_child_menus.cbegin(), m_child_menus.cend(), pMenuItem) != m_child_menus.cend())
+	{
+		assert(0);
+		return false;
+	}
+	m_child_menus.push_back(pMenuItem);
+	return true;
+}
+
+bool CMenuElementUI::AddSubMenuItem(CMenuElementUI* pMenuItem)
+{
+	if (pMenuItem == NULL) return false;
+	if (std::find(m_child_menus.cbegin(), m_child_menus.cend(), pMenuItem) != m_child_menus.cend())
+	{
+		assert(0);
+		return false;
+	}
+	m_child_menus.push_back(pMenuItem);
+	return true;
+}
+bool CMenuElementUI::AddSubMenuItemAt(CMenuElementUI* pMenuItem, std::size_t iIndex)
+{
+	if (pMenuItem == NULL) return false;
+	if (iIndex < 0 || iIndex > m_child_menus.size()) {
+		ASSERT(FALSE);
+		return false;
+	}
+	if (std::find(m_child_menus.cbegin(), m_child_menus.cend(), pMenuItem) != m_child_menus.cend())
+	{
+		assert(0);
+		return false;
+	}
+	m_child_menus.insert(m_child_menus.begin() + iIndex, pMenuItem);
+	return true;
+}
+bool CMenuElementUI::RemoveSubMenuItem(CMenuElementUI* pMenuItem)
+{
+	if (pMenuItem == NULL) return false;
+
+	for (auto it = m_child_menus.begin(); it != m_child_menus.end(); it++) {
+		if (*it == pMenuItem) {
+			delete pMenuItem;			//
+			m_child_menus.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+bool CMenuElementUI::RemoveSubMenuItemAt(std::size_t iIndex)
+{
+	if (iIndex < 0 || iIndex >= m_child_menus.size()) return false;
+	return RemoveSubMenuItem(m_child_menus[iIndex]);
+}
+bool CMenuElementUI::RemoveAllSubMenuItem()
+{
+	for (auto it = m_child_menus.begin(); it != m_child_menus.end(); it++)
+	{
+		delete (*it);
+	}
+	m_child_menus.clear();
+	return true;
+}
+CMenuElementUI* CMenuElementUI::GetSubMenuItemAt(std::size_t iIndex) const
+{
+	if (iIndex < 0 || iIndex >= m_child_menus.size()) return nullptr;
+	return m_child_menus[iIndex];
+}
+
 bool CMenuElementUI::ButtonUp(EventArgs& msg)
 {
 	std::weak_ptr<nbase::WeakFlag> weakFlag = m_pWindow->GetWeakFlag();
@@ -482,7 +564,6 @@ bool CMenuElementUI::ButtonUp(EventArgs& msg)
 
 	return ret;
 }
-
 
 bool CMenuElementUI::MouseEnter(EventArgs& msg)
 {
@@ -525,17 +606,7 @@ void CMenuElementUI::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
 
 bool CMenuElementUI::CheckSubMenuItem()
 {
-	bool hasSubMenu = false;
-	for (int i = 0; i < GetCount(); ++i)
-	{
-		CMenuElementUI* subMenuItem = dynamic_cast<CMenuElementUI*>(GetItemAt(i));
-		if (subMenuItem )
-		{
-			//subMenuItem->SetVisible(true);
-			subMenuItem->SetInternVisible(true);
-			hasSubMenu = true;
-		}
-	}
+	bool hasSubMenu = m_child_menus.size() > 0;
 	if (hasSubMenu)
 	{
 		m_pOwner->SelectItem(GetIndex(), true);
@@ -546,7 +617,8 @@ bool CMenuElementUI::CheckSubMenuItem()
 
 void CMenuElementUI::CreateMenuWnd()
 {
-	if (m_pSubWindow) return;
+	if (m_pSubWindow) 
+		return;
 	m_pSubWindow = new CMenuWnd(GetWindow()->GetHWND());
 
 	ContextMenuParam param;

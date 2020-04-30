@@ -119,7 +119,7 @@ public:
 	 * @param[in] callback 子项被选择后触发的回调函数
 	 * @return 无
 	 */
-	void AttachSelect(const EventCallback& callback) { OnEvent[kEventSelect] += callback;/*m_pLayout->AttachSelect(callback);*/ }	//mod by djj
+	void AttachSelect(const EventCallback& callback) { OnEvent[kEventSelect] += callback;/*m_pLayout->AttachSelect(callback);*/ }	//mod by djj 20200426
 
 private:
 	/**
@@ -137,7 +137,7 @@ protected:
 	CSize m_szDropBox;
 	std::wstring m_sDropBoxAttributes;
 	bool m_bPopupTop;
-	UiRect	m_rcTextPadding;	//add by djj
+	UiRect	m_rcTextPadding;	//add by djj 20200426
 };
 
 } // namespace ui

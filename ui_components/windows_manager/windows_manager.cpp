@@ -25,6 +25,10 @@ bool WindowsManager::RegisterWindow(const std::wstring wnd_class_name, const std
 	if (it != windows_map_.end())
 	{
 		std::map<std::wstring, WindowEx*>::iterator it2 = it->second.find(wnd_id);
+		if (it2 != it->second.cend())
+		{
+			assert(!"RegisterWindow existed");
+		}
 		it->second[wnd_id] = wnd;
 	}
 	else

@@ -63,9 +63,6 @@
     <ClInclude Include="msgbox\msgbox.h">
       <Filter>msgbox</Filter>
     </ClInclude>
-    <ClInclude Include="menu\ui_menu.h">
-      <Filter>menu</Filter>
-    </ClInclude>
     <ClInclude Include="modal_wnd\async_do_modal.h">
       <Filter>modal_wnd</Filter>
     </ClInclude>
@@ -144,6 +141,12 @@
     <ClInclude Include="comboex\FilterCombo.h">
       <Filter>comboex</Filter>
     </ClInclude>
+    <ClInclude Include="menu\observer_impl_base.hpp">
+      <Filter>menu</Filter>
+    </ClInclude>
+    <ClInclude Include="menu\ui_menu.h">
+      <Filter>menu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -151,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="msgbox\msgbox.cpp">
       <Filter>msgbox</Filter>
-    </ClCompile>
-    <ClCompile Include="menu\ui_menu.cpp">
-      <Filter>menu</Filter>
     </ClCompile>
     <ClCompile Include="modal_wnd\async_do_modal.cpp">
       <Filter>modal_wnd</Filter>
@@ -220,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="comboex\FilterCombo.cpp">
       <Filter>comboex</Filter>
+    </ClCompile>
+    <ClCompile Include="menu\ui_menu.cpp">
+      <Filter>menu</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

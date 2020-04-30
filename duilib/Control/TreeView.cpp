@@ -92,6 +92,13 @@ bool TreeNode::AddChildNodeAt(TreeNode* pTreeNode, std::size_t iIndex)
 	}
 	pTreeNode->m_pLayout->SetPadding(padding);
 
+	//add by djj 20200427 below 4 lines
+	if (m_iDepth != ROOT_NODE_DEPTH) {	
+		UiRect textpadding = GetTextPadding();	
+		textpadding.Offset(m_pTreeView->GetIndent(), 0);
+		pTreeNode->SetTextPadding(textpadding);
+	}
+
 	std::size_t nGlobalIndex = iIndex;
 	for (std::size_t i = 0; i < iIndex; i++)
 	{

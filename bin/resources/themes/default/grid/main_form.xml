@@ -3,18 +3,16 @@
   <VBox bkcolor="bk_wnd_darkcolor">
     <HBox width="stretch" height="35" bkcolor="bk_wnd_lightcolor">
       <Control />
-      <!--<Button class="btn_wnd_min" name="minbtn" margin="4,6,0,0"/>
+      <Button class="btn_wnd_min" name="minbtn" margin="4,6,0,0"/>
       <Box width="21" margin="4,6,0,0">
         <Button class="btn_wnd_max" name="maxbtn"/>
         <Button class="btn_wnd_restore" name="restorebtn" visible="false"/>
-      </Box>-->
+      </Box>
       <Button class="btn_wnd_close" name="closebtn" margin="4,6,8,0"/>
     </HBox>
-    <!--<VBox>
-      <VBox margin="0,20,0,0" halign="center" width="auto" height="auto">
-        <Label name="tooltip" text="一个grid示例窗口，带有标题栏和常规按钮。"/>
-      </VBox>-->
-      <Grid name="grid" width="stretch" height="stretch" margin="30,30,30,30" />
-    <!--</VBox>-->
+    <HBox>
+      <TreeView class="list" name="tree" width="240" margin="10,30,5,30" bkcolor="splitline_level1" indent="20"/>
+      <Grid name="grid" margin="5,30,10,30" />
+    </HBox>
   </VBox>
 </Window>

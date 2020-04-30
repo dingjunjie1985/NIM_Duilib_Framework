@@ -344,7 +344,10 @@
     <ClCompile Include="Utils\DpiManager.cpp" />
     <ClCompile Include="Utils\MultiLangSupport.cpp" />
     <ClCompile Include="Utils\OnScreenKeyboardManager.cpp" />
-    <ClCompile Include="Utils\Shadow.cpp" />
+    <ClCompile Include="Utils\Shadow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Utils\StringUtil.cpp" />
     <ClCompile Include="Utils\TimerManager.cpp" />
     <ClCompile Include="Core\Window.cpp" />
@@ -420,7 +423,9 @@
     <ClInclude Include="Control\TreeView.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\bin\resources\themes\default\global.xml" />
+    <Xml Include="..\bin\resources\themes\default\global.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -312,7 +312,7 @@ bool Combo::SelectItem(int iIndex)
 	m_iCurSel = iIndex;
 	m_pLayout->SelectItem(m_iCurSel, false, false);
 
-	//add by djj below
+	//add by djj below 20200426
 	if (m_pWindow != NULL) {
 		m_pWindow->SendNotify(this, kEventSelect, m_iCurSel, iOldSel);
 	}

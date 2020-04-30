@@ -186,6 +186,8 @@
     <ClInclude Include="cef_control\util\auto_unregister.h" />
     <ClInclude Include="comboex\CheckCombo.h" />
     <ClInclude Include="comboex\FilterCombo.h" />
+    <ClInclude Include="menu\observer_impl_base.hpp" />
+    <ClInclude Include="menu\ui_menu.h" />
     <ClInclude Include="public_define.h" />
     <ClInclude Include="ui_cef_control.h" />
     <ClInclude Include="cef_control\app\cef_js_bridge.h" />
@@ -200,7 +202,6 @@
     <ClInclude Include="cef_control\manager\cef_manager.h" />
     <ClInclude Include="cef_control\util\memory_dc.h" />
     <ClInclude Include="cef_control\util\util.h" />
-    <ClInclude Include="menu\ui_menu.h" />
     <ClInclude Include="modal_wnd\async_do_modal.h" />
     <ClInclude Include="modal_wnd\async_modal_runner.h" />
     <ClInclude Include="modal_wnd\file_dialog_ex.h" />
@@ -235,7 +236,10 @@
     <ClCompile Include="modal_wnd\async_modal_runner.cpp" />
     <ClCompile Include="modal_wnd\file_dialog_ex.cpp" />
     <ClCompile Include="msgbox\msgbox.cpp" />
-    <ClCompile Include="shadow_wnd\shadow_wnd.cpp" />
+    <ClCompile Include="shadow_wnd\shadow_wnd.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

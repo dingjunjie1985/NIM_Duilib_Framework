@@ -170,7 +170,18 @@ void ControlForm::InitWindow()
 		menu_item->SetFixedWidth(180);
 		menu_item->SetFont(L"system_14");
 		menu_item->SetTextPadding({ 20, 0, 20, 0 });
-		menu_fourth->Add(menu_item);
+		//menu_fourth->Add(menu_item);
+		menu_fourth->AddSubMenuItem(menu_item);
+
+		nim_comp::CMenuElementUI* menu_third = static_cast<nim_comp::CMenuElementUI*>(sub_menu->FindControl(L"third"));
+		menu_item = new nim_comp::CMenuElementUI;
+		menu_item->SetText(L"Dynamically created3");
+		menu_item->SetClass(L"menu_element");
+		menu_item->SetFixedWidth(180);
+		menu_item->SetFont(L"system_14");
+		menu_item->SetTextPadding({ 20, 0, 20, 0 });
+		//menu_third->Add(menu_item);
+		menu_third->AddSubMenuItem(menu_item);
 
 		/* About menu */
 		nim_comp::CMenuElementUI* menu_about = static_cast<nim_comp::CMenuElementUI*>(sub_menu->FindControl(L"about"));
