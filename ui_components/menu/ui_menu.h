@@ -68,6 +68,8 @@ public:
 	// 重新调整子菜单的大小
 	void ResizeSubMenu();
 
+	void DetouchOwner();		//add by djj 20200506
+
 	static ContextMenuObserver& GetMenuObserver()
 	{
 		static ContextMenuObserver s_context_menu_observer;

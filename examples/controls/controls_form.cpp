@@ -166,6 +166,7 @@ void ControlForm::InitWindow()
 		nim_comp::CMenuElementUI* menu_fourth = static_cast<nim_comp::CMenuElementUI*>(sub_menu->FindControl(L"fourth"));
 		nim_comp::CMenuElementUI* menu_item = new nim_comp::CMenuElementUI;
 		menu_item->SetText(L"Dynamically created");
+		menu_item->SetName(L"Dynamically_Menu");
 		menu_item->SetClass(L"menu_element");
 		menu_item->SetFixedWidth(180);
 		menu_item->SetFont(L"system_14");
@@ -176,6 +177,7 @@ void ControlForm::InitWindow()
 		nim_comp::CMenuElementUI* menu_third = static_cast<nim_comp::CMenuElementUI*>(sub_menu->FindControl(L"third"));
 		menu_item = new nim_comp::CMenuElementUI;
 		menu_item->SetText(L"Dynamically created3");
+		menu_item->SetName(L"Dynamically_Menu3");
 		menu_item->SetClass(L"menu_element");
 		menu_item->SetFixedWidth(180);
 		menu_item->SetFont(L"system_14");
@@ -248,7 +250,7 @@ void ControlForm::OnResourceFileLoaded(const std::wstring& xml)
 	}
 
 	// Show about form
-	nim_comp::WindowsManager::SingletonShow<AboutForm>(AboutForm::kClassName);
+	//nim_comp::WindowsManager::SingletonShow<AboutForm>(AboutForm::kClassName);
 }
 
 void ControlForm::OnProgressValueChagned(float value)

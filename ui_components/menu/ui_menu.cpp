@@ -79,36 +79,33 @@ void CMenuWnd::Init(STRINGorID xml, LPCTSTR pSkinType, POINT point, PopupPosType
 	::SendMessage(hWndParent, WM_NCACTIVATE, TRUE, 0L);
 }
 
-void CMenuWnd::OnFinalMessage(HWND hWnd)
+void CMenuWnd::DetouchOwner()
 {
-	Window::OnFinalMessage(hWnd);
-	RemoveObserver();
-	if (m_pOwner != NULL) {
+	if (m_pOwner)
+	{
 		m_pLayout->SelectItem(-1);
-#if 0
-		for (int i = 0; i < m_pLayout->GetCount(); i++) {
-			CMenuElementUI* pItem = static_cast<CMenuElementUI*>(m_pLayout->GetItemAt(i)); //这里确定是CMenuElementUI*，static_cast效率高
-			if (pItem)
-			{
-				pItem->SetOwner(dynamic_cast<IListOwner*>(m_pOwner->GetParent()));//这里的父控件可能仍然是menuitem,那么置空即可
-				pItem->SetWindow(m_pOwner->GetWindow(), m_pOwner, false);         //更改item的归属
- 				pItem->SetInternVisible(false);
-			}
-		}
-#else 
+
 		for (int i = 0; i < m_pOwner->GetSubMenuItemCount(); i++) {
-			CMenuElementUI* pItem = static_cast<CMenuElementUI*>(m_pOwner->GetSubMenuItemAt(i)); 
+			CMenuElementUI* pItem = static_cast<CMenuElementUI*>(m_pOwner->GetSubMenuItemAt(i));
 			if (pItem)
 			{
-				pItem->SetInternVisible(true);
+				pItem->SetWindow(nullptr, nullptr, false);
 			}
 		}
-#endif
+
 		m_pLayout->RemoveAll();
 		m_pOwner->m_pSubWindow = NULL;
 		//m_pOwner->m_uButtonState &= ~UISTATE_PUSHED;  这里可能需要替换，暂时注释
 		m_pOwner->Invalidate();
+		m_pOwner = NULL;
 	}
+}
+
+void CMenuWnd::OnFinalMessage(HWND hWnd)
+{
+	Window::OnFinalMessage(hWnd);
+	RemoveObserver();
+	DetouchOwner();
 	ReapObjects(GetRoot());
 	delete this;
 }
@@ -436,13 +433,15 @@ void CMenuWnd::InitWindow()
 
 		for (int i = 0; i < m_pOwner->GetSubMenuItemCount(); i++) {
 			CMenuElementUI* subMenuItem = dynamic_cast<CMenuElementUI*>(m_pOwner->GetSubMenuItemAt(i));
+			subMenuItem->SetInternVisible(true);		//add by djj 20200506
 			if (subMenuItem && subMenuItem->IsVisible())
 			{
-				//此时子菜单item属于2个子菜单，注意生命周期的维护，子菜单窗口退出不能销毁控件，需要归还原控件，
-				//此时子菜单item的父控件是准的，但父控件可能不是Vlist，SetOwner的入参是Vlist，这时owner置空
-				//见OnFinalMessage
 				m_pLayout->Add(subMenuItem); //内部会调用subMenuItem->SetOwner(m_pLayout); 会调用SetWindows，改变了归属窗口、父控件。
 			}
+		}
+		if (m_pLayout->GetCount() == 0)
+		{
+			printf("m_pLayout->GetCount() == 0\n");
 		}
 	}
 	else
@@ -472,7 +471,17 @@ m_pSubWindow(nullptr)
 }
 
 CMenuElementUI::~CMenuElementUI()
-{}
+{
+
+	if (m_child_menus.size() > 0)
+	{
+		for (size_t i = 0; i < m_child_menus.size(); i++)
+		{
+			delete m_child_menus[i];
+		}
+		m_child_menus.clear();
+	}
+}
 
 bool CMenuElementUI::Add(Control* pControl)
 {
@@ -617,8 +626,23 @@ bool CMenuElementUI::CheckSubMenuItem()
 
 void CMenuElementUI::CreateMenuWnd()
 {
-	if (m_pSubWindow) 
+#if 0
+	if (m_pSubWindow)
 		return;
+#else		//add by djj 20200506 快速切换子菜单情况下, 可以使子菜单弹出及时
+	if (m_pSubWindow)
+	{
+		if (m_pSubWindow->IsClosing())
+		{
+			m_pSubWindow->DetouchOwner();
+		}
+		else
+		{
+			printf("m_pSubWindow->IsClosing() == false\n");
+			return;
+		}
+	}
+#endif
 	m_pSubWindow = new CMenuWnd(GetWindow()->GetHWND());
 
 	ContextMenuParam param;
