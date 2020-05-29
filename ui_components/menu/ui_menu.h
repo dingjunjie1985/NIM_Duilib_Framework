@@ -124,7 +124,6 @@ public:
 	virtual CMenuElementUI* GetSubMenuItemAt(std::size_t iIndex) const;
 	virtual int GetSubMenuItemCount() const{ return m_child_menus.size(); };
 
-private:
 	virtual bool Add(Control* pControl) override;
 
 private:

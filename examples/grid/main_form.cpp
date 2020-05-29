@@ -34,12 +34,24 @@ std::wstring MainForm::GetWindowClassName() const
 void MainForm::InitWindow()
 {
 	Grid *grid = static_cast<Grid*>(FindControl(L"grid"));
-	grid->AddHeaderEle(L"第一列");
-	grid->AddHeaderEle(L"第二列");
+	std::wstring header[] = { L"", L"代码", L"名称", L"类型", L"长度", L"顺序号",
+		L"编辑模式", L"是否显示", L"参数类型", L"参数值", L"默认值" };
+	for (int i = 0; i < sizeof(header) / sizeof(header[0]); i++)
+	{
+		if (i == 0)
+			grid->AddHeaderEle(header[i], 30);
+		else
+			grid->AddHeaderEle(header[i]);
+	}
+
+	for (size_t i = 0; i < 100; i++)
+	{
+		grid->AddRow();
+	}
 
 	tree_ = static_cast<TreeView*>(FindControl(L"tree"));
+#if 0
 	ui::TreeNode* parent_node = nullptr;
-
 	for (size_t i = 0; i < 30; i++)
 	{
 		ui::TreeNode* parent_node = new ui::TreeNode;
@@ -65,7 +77,18 @@ void MainForm::InitWindow()
 			}
 		}
 	}
-	
+#endif
+#if 0
+	ListBox *list = static_cast<ListBox*>(FindControl(L"list"));
+	for (size_t i = 0; i < 30000; i++)
+	{
+		ui::ListContainerElement* item = new ui::ListContainerElement;
+		item->SetClass(L"listitem");
+		item->SetFixedHeight(20);
+		item->SetText(nbase::StringPrintf(L"Leaf node %d", i));
+		list->Add(item);
+	}
+#endif
 	//Label *tooltip = (Label*)FindControl(L"tooltip");
 	//Button *btn = (Button*)FindControl(L"btn");
 	//btn->AttachClick([this, tooltip](ui::EventArgs *args){
