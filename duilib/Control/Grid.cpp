@@ -52,4 +52,61 @@ namespace ui
 	{
 		return m_pBody->AddRow();
 	}
+
+	CSize Grid::CalcRequiredSize(const UiRect& rc)
+	{
+		assert(m_pHeader && m_pBody && m_pHeader->GetFixedWidth() == m_pBody->GetFixedWidth());
+		CSize requiredSize;
+		
+		UiRect childSize = rc;
+		if (!m_bScrollBarFloat && m_pVerticalScrollBar && m_pVerticalScrollBar->IsValid()) {
+			childSize.right -= m_pVerticalScrollBar->GetFixedWidth();
+		}
+		if (!m_bScrollBarFloat && m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsValid()) {
+			childSize.bottom -= m_pHorizontalScrollBar->GetFixedHeight();
+		}
+		/*requiredSize = */m_pLayout->ArrangeChild(m_items, childSize);
+
+		requiredSize.cx = m_pHeader->GetFixedWidth() > 0 ? m_pHeader->GetFixedWidth() : 0;
+		requiredSize.cy = m_pBody->GetFixedHeight() > 0 ? m_pBody->GetFixedHeight() : 0;
+
+		return requiredSize;
+	}
+
+	void Grid::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
+	{
+		UiRect rcTemp;
+		if (!::IntersectRect(&rcTemp, &rcPaint, &m_rcItem)) return;
+
+		CSize scrollPos = GetScrollPos();
+		UiRect rcNewPaint = GetPaddingPos();
+		AutoClip alphaClip(pRender, rcNewPaint, m_bClip);
+		rcNewPaint.Offset(scrollPos.cx, 0);
+		rcNewPaint.Offset(GetRenderOffset().x, GetRenderOffset().y);
+
+		CPoint ptOffset(scrollPos.cx, 0);
+		CPoint ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
+		m_pHeader->AlphaPaint(pRender, rcNewPaint);
+		pRender->SetWindowOrg(ptOldOrg);
+
+		rcNewPaint.Offset(0, scrollPos.cy);
+		ptOffset.y = scrollPos.cy;
+		ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
+		m_pBody->AlphaPaint(pRender, rcNewPaint);
+		pRender->SetWindowOrg(ptOldOrg);
+
+		if (m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) {
+			m_pHorizontalScrollBar->AlphaPaint(pRender, rcPaint);
+		}
+
+		if (m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible()) {
+			m_pVerticalScrollBar->AlphaPaint(pRender, rcPaint);
+		}
+
+		static bool bFirstPaint = true;
+		if (bFirstPaint) {
+			bFirstPaint = false;
+			LoadImageCache(true);
+		}
+	}
 }

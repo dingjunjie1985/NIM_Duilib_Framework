@@ -17,6 +17,7 @@ namespace ui
 		int GetTotalRowHeight(){}
 	protected:
 		virtual void PaintBorder(IRenderContext* pRender) override;
+		virtual void PaintText(IRenderContext* pRender) override;
 	protected:
 		Grid *m_pGrid = nullptr;
 		GridHeader *m_pHeader = nullptr;

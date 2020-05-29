@@ -21,6 +21,9 @@ namespace ui
 		virtual bool AddRow();
 
 	protected:
+		virtual CSize CalcRequiredSize(const UiRect& rc) override;
+		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
+	protected:
 		GridHeader *m_pHeader = nullptr;
 		GridBody *m_pBody = nullptr;
 	};

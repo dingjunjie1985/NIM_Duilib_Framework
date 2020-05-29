@@ -56,4 +56,9 @@ namespace ui
 			pRender->SetWindowOrg({ 0, 0 });
 		}
 	}
+
+	void GridBody::PaintText(IRenderContext* pRender)
+	{
+
+	}
 }
