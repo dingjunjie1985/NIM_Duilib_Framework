@@ -193,21 +193,34 @@ namespace ui
 		if (!::IntersectRect(&rcTemp, &rcPaint, &m_rcItem)) return;
 
 		CSize scrollPos = GetScrollPos();
-		UiRect rcNewPaint = GetPaddingPos();
-		AutoClip alphaClip(pRender, rcNewPaint, m_bClip);
-		rcNewPaint.Offset(scrollPos.cx, 0);
-		rcNewPaint.Offset(GetRenderOffset().x, GetRenderOffset().y);
 
-		CPoint ptOffset(scrollPos.cx, 0);
-		CPoint ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
-		m_pHeader->AlphaPaint(pRender, rcNewPaint);
-		pRender->SetWindowOrg(ptOldOrg);
+		{
+			UiRect rcNewPaint = GetPaddingPos();
+			AutoClip alphaClip(pRender, rcNewPaint, m_bClip);
+			rcNewPaint.Offset(scrollPos.cx, 0);
+			rcNewPaint.Offset(GetRenderOffset().x, GetRenderOffset().y);
 
-		rcNewPaint.Offset(0, scrollPos.cy);
-		ptOffset.y = scrollPos.cy;
-		ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
-		m_pBody->AlphaPaint(pRender, rcNewPaint);
-		pRender->SetWindowOrg(ptOldOrg);
+			CPoint ptOffset(scrollPos.cx, 0);
+			CPoint ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
+			m_pHeader->AlphaPaint(pRender, rcNewPaint);
+			pRender->SetWindowOrg(ptOldOrg);
+		}
+
+		{
+			UiRect rcNewPaint = GetPaddingPos();
+			rcNewPaint.top += m_pHeader->GetFixedHeight();
+			assert(rcNewPaint.GetHeight() > 0);
+			AutoClip alphaClip(pRender, rcNewPaint, m_bClip);
+			rcNewPaint.Offset(scrollPos.cx, scrollPos.cy);
+			rcNewPaint.Offset(GetRenderOffset().x, GetRenderOffset().y);
+
+			CPoint ptOffset(scrollPos.cx, scrollPos.cy);
+			CPoint ptOldOrg = pRender->OffsetWindowOrg(ptOffset);
+			m_pBody->AlphaPaint(pRender, rcNewPaint);
+			pRender->SetWindowOrg(ptOldOrg);
+		}
+
+		
 
 		if (m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible()) {
 			m_pHorizontalScrollBar->AlphaPaint(pRender, rcPaint);
