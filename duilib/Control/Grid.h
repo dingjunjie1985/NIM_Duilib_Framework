@@ -21,6 +21,12 @@ namespace ui
 		virtual bool AddRow();
 
 	protected:
+		int GetFixedColWidth();
+		int GetFixedRowHeight();
+
+	protected:
+		virtual void ProcessVScrollBar(UiRect rc, int cyRequired) override;
+		virtual void ProcessHScrollBar(UiRect rc, int cyRequired) override;
 		virtual CSize CalcRequiredSize(const UiRect& rc) override;
 		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
 	protected:

@@ -26,6 +26,7 @@ namespace ui
 
 	void Grid::Init()
 	{
+		SetScrollBarPadding({ 0, 32, 0, 0 });
 		SetHeaderHeight(32);
 		SetHeaderBkColor(L"splitline_level2");
 		SetBorderColor(L"splitline_level2");
@@ -51,6 +52,119 @@ namespace ui
 	bool Grid::AddRow()
 	{
 		return m_pBody->AddRow();
+	}
+
+	int Grid::GetFixedColWidth()
+	{
+		return 30;
+	}
+	int Grid::GetFixedRowHeight()
+	{
+		return m_pHeader->GetFixedHeight();
+	}
+
+	void Grid::ProcessVScrollBar(UiRect rc, int cyRequired)
+	{
+		UiRect rcScrollBarPos = rc;
+		rcScrollBarPos.left += m_rcScrollBarPadding.left;
+		rcScrollBarPos.top += m_rcScrollBarPadding.top;
+		rcScrollBarPos.right -= m_rcScrollBarPadding.right;
+		rcScrollBarPos.bottom -= m_rcScrollBarPadding.bottom;
+
+		if (m_pVerticalScrollBar == NULL) return;
+
+		rc.left += m_pLayout->GetPadding().left;
+		rc.top += m_pLayout->GetPadding().top;
+		rc.right -= m_pLayout->GetPadding().right;
+		rc.bottom -= m_pLayout->GetPadding().bottom;
+		int nHeight = rc.bottom - rc.top - GetFixedRowHeight();
+		if (cyRequired > nHeight && !m_pVerticalScrollBar->IsValid()) {
+			m_pVerticalScrollBar->SetScrollRange(cyRequired - nHeight);
+			m_pVerticalScrollBar->SetScrollPos(0);
+			m_bScrollProcess = true;
+			SetPos(m_rcItem);
+			m_bScrollProcess = false;
+
+			return;
+		}
+		// No scrollbar required
+		if (!m_pVerticalScrollBar->IsValid()) return;
+
+		// Scroll not needed anymore?
+		int cyScroll = cyRequired - nHeight;
+		if (cyScroll <= 0 && !m_bScrollProcess) {
+			m_pVerticalScrollBar->SetScrollPos(0);
+			m_pVerticalScrollBar->SetScrollRange(0);
+			SetPos(m_rcItem);
+		}
+		else {
+			UiRect rcVerScrollBarPos(rcScrollBarPos.right - m_pVerticalScrollBar->GetFixedWidth(), rcScrollBarPos.top, rcScrollBarPos.right, rcScrollBarPos.bottom);
+			m_pVerticalScrollBar->SetPos(rcVerScrollBarPos);
+
+			if (m_pVerticalScrollBar->GetScrollRange() != cyScroll) {
+				int iScrollPos = m_pVerticalScrollBar->GetScrollPos();
+				m_pVerticalScrollBar->SetScrollRange(::abs(cyScroll));
+				if (!m_pVerticalScrollBar->IsValid()) {
+					m_pVerticalScrollBar->SetScrollPos(0);
+				}
+
+				if (iScrollPos > m_pVerticalScrollBar->GetScrollPos()) {
+					SetPos(m_rcItem);
+				}
+			}
+		}
+	}
+
+	void Grid::ProcessHScrollBar(UiRect rc, int cxRequired)
+	{
+		UiRect rcScrollBarPos = rc;
+		rcScrollBarPos.left += m_rcScrollBarPadding.left;
+		rcScrollBarPos.top += m_rcScrollBarPadding.top;
+		rcScrollBarPos.right -= m_rcScrollBarPadding.right;
+		rcScrollBarPos.bottom -= m_rcScrollBarPadding.bottom;
+
+		if (m_pHorizontalScrollBar == NULL) return;
+
+		rc.left += m_pLayout->GetPadding().left;
+		rc.top += m_pLayout->GetPadding().top;
+		rc.right -= m_pLayout->GetPadding().right;
+		rc.bottom -= m_pLayout->GetPadding().bottom;
+		int nWidth = rc.right - rc.left/* - GetFixedColWidth()*/;
+		if (cxRequired > nWidth && !m_pHorizontalScrollBar->IsValid()) {
+			m_pHorizontalScrollBar->SetScrollRange(cxRequired - nWidth);
+			m_pHorizontalScrollBar->SetScrollPos(0);
+			m_bScrollProcess = true;
+			SetPos(m_rcItem);
+			m_bScrollProcess = false;
+
+			return;
+		}
+		// No scrollbar required
+		if (!m_pHorizontalScrollBar->IsValid()) return;
+
+		// Scroll not needed anymore?
+		int cxScroll = cxRequired - nWidth;
+		if (cxScroll <= 0 && !m_bScrollProcess) {
+			m_pHorizontalScrollBar->SetScrollPos(0);
+			m_pHorizontalScrollBar->SetScrollRange(0);
+			SetPos(m_rcItem);
+		}
+		else {
+			UiRect rcVerScrollBarPos(rcScrollBarPos.left, rcScrollBarPos.bottom - m_pHorizontalScrollBar->GetFixedHeight(), rcScrollBarPos.right, rcScrollBarPos.bottom);
+			m_pHorizontalScrollBar->SetPos(rcVerScrollBarPos);
+
+			if (m_pHorizontalScrollBar->GetScrollRange() != cxScroll) {
+				int iScrollPos = m_pHorizontalScrollBar->GetScrollPos();
+				m_pHorizontalScrollBar->SetScrollRange(::abs(cxScroll));
+				if (!m_pHorizontalScrollBar->IsValid()) {
+					m_pHorizontalScrollBar->SetScrollPos(0);
+				}
+
+				if (iScrollPos > m_pHorizontalScrollBar->GetScrollPos()) {
+					SetPos(m_rcItem);
+				}
+			}
+		}
 	}
 
 	CSize Grid::CalcRequiredSize(const UiRect& rc)

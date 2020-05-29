@@ -44,16 +44,16 @@ namespace ui
 	template<typename InheritType>
 	void GridHeadEleTemplate<InheritType>::PaintText(IRenderContext* pRender)
 	{
-		if (strText.empty()) return;
+		if (m_sText.empty()) return;
 		UiRect rc = this->m_rcItem;
-		rc.left += rcTextPadding.left;
-		rc.right -= rcTextPadding.right;
-		rc.top += rcTextPadding.top;
-		rc.bottom -= rcTextPadding.bottom;
+		rc.left += m_rcTextPadding.left;
+		rc.right -= m_rcTextPadding.right;
+		rc.top += m_rcTextPadding.top;
+		rc.bottom -= m_rcTextPadding.bottom;
 
 		bool bLineLimit = false;
 		std::wstring sFontId;
-		pRender->DrawText(rc, strText, 0xff000000, sFontId, uTextStyle, 255, bLineLimit);
+		pRender->DrawText(rc, m_sText, 0xff000000, sFontId, m_uTextStyle, 255, bLineLimit);
 	}
 
 	//------------------------------------GridHeader-----------------------------------------

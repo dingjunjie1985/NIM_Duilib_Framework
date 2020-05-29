@@ -26,5 +26,7 @@ namespace ui
 
 		int m_defaultRowHeight = 24;
 		bool m_bPaintGridLine = true;
+
+		UINT	m_uTextStyle = DT_CENTER | DT_CENTER | DT_VCENTER | DT_SINGLELINE;
 	};
 }

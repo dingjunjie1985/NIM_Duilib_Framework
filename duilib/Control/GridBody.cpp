@@ -59,6 +59,28 @@ namespace ui
 
 	void GridBody::PaintText(IRenderContext* pRender)
 	{
+		int posx = 30;
+		int posy = 0;
+		for (size_t i = 0; i < m_vlayout.size(); i++)
+		{
+			DWORD dwClrColor = GlobalManager::GetTextColor(L"textdefaultcolor");
+			wchar_t wbuf[16] = {};
+			_itow(i + 1, wbuf, 10);
+			UiRect rc = { 0, posy, 30, posy + m_vlayout[i] };
+			rc.Offset({ m_rcItem.left, m_rcItem.top });
+			pRender->DrawText(rc, wbuf, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+			posy += m_vlayout[i];
+		}
 
+		for (size_t i = 0; i < 10; i++)
+		{
+			DWORD dwClrColor = GlobalManager::GetTextColor(L"textdefaultcolor");
+			wchar_t wbuf[16] = {};
+			_itow(i + 1, wbuf, 10);
+			UiRect rc = { posx, 0, posx + 80, 24 };
+			rc.Offset({ m_rcItem.left, m_rcItem.top });
+			pRender->DrawText(rc, wbuf, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+			posx += 80;
+		}
 	}
 }

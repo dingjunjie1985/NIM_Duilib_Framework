@@ -8,7 +8,7 @@ namespace ui
 		friend class GridHeader;
 	protected:
 		GridHeadEleTemplate(std::wstring text, int width){  
-			strText = text;
+			m_sText = text;
 			SetFixedWidth(width);
 		};
 		virtual ~GridHeadEleTemplate(){ 
@@ -21,9 +21,9 @@ namespace ui
 		//virtual void PaintBorder(IRenderContext* pRender) override;
 	protected:
 		int m_nIndex = -1;
-		std::wstring strText;
-		UiRect	rcTextPadding;
-		UINT	uTextStyle;
+		std::wstring	m_sText;
+		UiRect			m_rcTextPadding;
+		UINT			m_uTextStyle;
 
 		GridHeader* m_pHeader = nullptr;
 	};
