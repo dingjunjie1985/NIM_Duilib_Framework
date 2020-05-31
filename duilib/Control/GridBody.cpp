@@ -155,10 +155,25 @@ namespace ui
 		return true;
 	}
 
-	/*void GridBody::AlphaPaint(IRenderContext* pRender, const UiRect& rcPaint)
+	void GridBody::HandleMessage(EventArgs& event)
 	{
-		__super::AlphaPaint(pRender, rcPaint);
-	}*/
+		/*if (!IsMouseEnabled() && event.Type > kEventMouseBegin && event.Type < kEventMouseEnd) {
+			if (m_pParent != NULL) m_pParent->HandleMessageTemplate(event);
+			else Box::HandleMessage(event);
+			return;
+		}
+		if (true)
+		{
+
+		}*/
+		return __super::HandleMessage(event);
+	}
+
+	bool GridBody::ButtonDown(EventArgs& msg)
+	{
+		printf("GridBody::ButtonDown {%d, %d}\n", msg.ptMouse.x, msg.ptMouse.y);
+		return true;
+	}
 
 	void GridBody::PaintStatusColor(IRenderContext* pRender)
 	{
@@ -181,7 +196,6 @@ namespace ui
 
 	void GridBody::PaintBorder(IRenderContext* pRender)
 	{
-		printf("GridBody::PaintBorder\n");
 		__super::PaintBorder(pRender);
 		if (m_pGrid->m_bPaintGridLine && m_hLayout.size() > 0 && m_vLayout.size() > 0)
 		{
@@ -244,7 +258,6 @@ namespace ui
 
 	void GridBody::PaintText(IRenderContext* pRender)
 	{
-		printf("GridBody::PaintText\n");
 		CSize szoff = m_pGrid->GetScrollPos();
 		int posx = 0;
 		int posy = 0;

@@ -45,6 +45,7 @@ namespace ui
 		GridBody *m_pBody = nullptr;
 
 		bool m_bPaintGridLine = true;
+		bool m_bEditable = true;
 	};
 
 	

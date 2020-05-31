@@ -25,6 +25,10 @@ namespace ui
 		SetBorderColor(L"splitline_level1");
 		SetGridLineColor(L"grid_line");
 		SetBorderSize({ 1, 1, 1, 1 });
+		if (m_pVerticalScrollBar)
+			m_pVerticalScrollBar->SetAutoHideScroll(false);
+		if (m_pHorizontalScrollBar)
+			m_pHorizontalScrollBar->SetAutoHideScroll(false);
 	}
 
 	int Grid::GetColCount() const{ return m_pBody->GetColCount(); }

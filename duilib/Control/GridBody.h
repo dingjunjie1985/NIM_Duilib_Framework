@@ -45,7 +45,10 @@ namespace ui
 		bool AddRow();
 
 	protected:
-		//virtual void AlphaPaint(IRenderContext* pRender, const UiRect& rcPaint) override;
+		virtual void HandleMessage(EventArgs& event) override;
+		virtual bool ButtonDown(EventArgs& msg) override;
+
+		
 		virtual void PaintStatusColor(IRenderContext* pRender) override;
 		virtual void PaintText(IRenderContext* pRender) override;
 		virtual void PaintBorder(IRenderContext* pRender) override;
