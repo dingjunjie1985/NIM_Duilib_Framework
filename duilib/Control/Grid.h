@@ -2,36 +2,49 @@
 
 namespace ui
 {
+
 	class GridHeader;
 	class GridBody;
 	class UILIB_API Grid : public ScrollableBox
 	{
+		friend class GridBody;
 	public:
 		Grid();
 		virtual ~Grid();
 		virtual void Init() override;
 
-		inline int GetColCount();
-		inline int GetRowCount();
 	public:
-		virtual void SetHeaderHeight(int height);
-		virtual void SetHeaderBkColor(std::wstring bkcolor);
-	public:
-		virtual bool AddHeaderEle(std::wstring text, int width = 80);
-		virtual bool AddRow();
+		int GetColCount() const;
+		int GetRowCount() const;
+		int GetFixedColCount() const;
+		int GetFixedRowCount() const;
+		int GetFixedColWidth() const;
+		int GetFixedRowHeight() const;
+		int GetHeaderHeight() const;
+		std::wstring GetFixedBkColor() const;
+		std::wstring GetGridLineColor() const;
+
+		void SetColCount(int count);
+		void SetRowCount(int count);
+		void SetFixedColCount(int fixed);
+		void SetFixedRowCount(int fixed);
+		void SetHeaderHeight(int height);
+		void SetFixedBkColor(std::wstring bkcolor);
+		void SetGridLineColor(std::wstring bkcolor);
+		
+
+		bool AddHeaderItem(std::wstring text, int width = 80);
+		bool AddRow();
 
 	protected:
-		int GetFixedColWidth();
-		int GetFixedRowHeight();
+		
 
 	protected:
-		virtual void ProcessVScrollBar(UiRect rc, int cyRequired) override;
-		virtual void ProcessHScrollBar(UiRect rc, int cyRequired) override;
-		virtual CSize CalcRequiredSize(const UiRect& rc) override;
 		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
 	protected:
-		GridHeader *m_pHeader = nullptr;
 		GridBody *m_pBody = nullptr;
+
+		bool m_bPaintGridLine = true;
 	};
 
 	

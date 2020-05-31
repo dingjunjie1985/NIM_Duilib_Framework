@@ -39,15 +39,48 @@ void MainForm::InitWindow()
 	for (int i = 0; i < sizeof(header) / sizeof(header[0]); i++)
 	{
 		if (i == 0)
-			grid->AddHeaderEle(header[i], 30);
+			grid->AddHeaderItem(header[i], 30);
 		else
-			grid->AddHeaderEle(header[i]);
+			grid->AddHeaderItem(header[i]);
 	}
 
 	for (size_t i = 0; i < 100; i++)
 	{
 		grid->AddRow();
 	}
+
+	grid->SetFixedColCount(1);
+	grid->SetFixedRowCount(1);
+
+	RichEdit *re_fixed_row = static_cast<RichEdit*>(FindControl(L"re_fixed_row"));
+	RichEdit *re_fixed_col = static_cast<RichEdit*>(FindControl(L"re_fixed_col"));
+	re_fixed_row->SetText(nbase::IntToString16(grid->GetFixedRowCount()));
+	re_fixed_col->SetText(nbase::IntToString16(grid->GetFixedColCount()));
+	re_fixed_row->AttachReturn([this, grid, re_fixed_row](ui::EventArgs* args){
+		std::wstring text = re_fixed_row->GetText();
+		if (!text.empty())
+		{
+			int fixed = 0;
+			if (nbase::StringToInt(text, &fixed) && fixed != grid->GetFixedRowCount())
+			{
+				grid->SetFixedRowCount(fixed);
+			}
+		}
+		return true;
+	});
+
+	re_fixed_col->AttachReturn([this, grid, re_fixed_col](ui::EventArgs* args){
+		std::wstring text = re_fixed_col->GetText();
+		if (!text.empty())
+		{
+			int fixed = 0;
+			if (nbase::StringToInt(text, &fixed) && fixed != grid->GetFixedColCount())
+			{
+				grid->SetFixedColCount(fixed);
+			}
+		}
+		return true;
+	});
 
 	tree_ = static_cast<TreeView*>(FindControl(L"tree"));
 #if 0

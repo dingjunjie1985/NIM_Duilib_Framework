@@ -321,7 +321,10 @@
     <ClCompile Include="Control\CircleProgress.cpp" />
     <ClCompile Include="Control\Grid.cpp" />
     <ClCompile Include="Control\GridBody.cpp" />
-    <ClCompile Include="Control\GridHeader.cpp" />
+    <ClCompile Include="Control\GridHeader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Control\VirtualListBox.cpp" />
     <ClCompile Include="Core\Define.cpp" />
     <ClCompile Include="Core\Image.cpp" />

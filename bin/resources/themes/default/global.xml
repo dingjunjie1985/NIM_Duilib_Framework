@@ -88,6 +88,9 @@
     <TextColor name="color_palette8" value="#ffa8a8a8"/>
     <TextColor name="color_palette9" value="#ffffffff"/>
 
+    <!--duilib控件相关颜色-->
+    <TextColor name="grid_line" value="#ffcccccc"/>
+
     <!--字体大小-->
     <Class name="font_title" font="system_14"/>
 
