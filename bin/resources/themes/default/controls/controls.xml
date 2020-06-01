@@ -17,9 +17,9 @@
       <HBox height="110" padding="0,0,0,20">
         <!-- Buttons -->
         <VBox>
-          <Button class="btn_global_blue_80x30" text="blue"/>
-          <Button class="btn_global_white_80x30" text="white"/>
-          <Button class="btn_global_red_80x30" text="red"/>
+          <Button class="btn_global_blue" text="blue"/>
+          <Button class="btn_global_white" text="white"/>
+          <Button class="btn_global_red" text="red"/>
         </VBox>
         <!-- Checkbox -->
         <VBox>

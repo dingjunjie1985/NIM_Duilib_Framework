@@ -1,14 +1,11 @@
 #include "StdAfx.h"
-//#include "GridHeader.h"
 #include "GridBody.h"
 
 namespace ui
 {
 	Grid::Grid() : ScrollableBox(new VLayout()){
-		m_pBody = new GridBody;
+		m_pBody = new GridBody(this);
 		Add(m_pBody);
-
-		m_pBody->m_pGrid = this;
 
 		SetBkColor(L"white");
 	}
@@ -19,7 +16,6 @@ namespace ui
 
 	void Grid::Init()
 	{
-		//SetScrollBarPadding({ 0, 32, 0, 0 });
 		SetHeaderHeight(32);
 		SetFixedBkColor(L"splitline_level2");
 		SetBorderColor(L"splitline_level1");
@@ -45,12 +41,17 @@ namespace ui
 	void Grid::SetRowCount(int count){ return m_pBody->SetRowCount(count); }
 	void Grid::SetFixedColCount(int fixed){ return m_pBody->SetFixedColCount(fixed); }
 	void Grid::SetFixedRowCount(int fixed){ return m_pBody->SetFixedRowCount(fixed); }
-	void Grid::SetHeaderHeight(int height){ m_pBody->SetHeaderHeight(height); }
+	void Grid::SetHeaderHeight(int height){ 
+		m_pBody->SetHeaderHeight(height); 
+		SetScrollBarPadding({ 0, height, 0, 0 });
+	}
 	void Grid::SetFixedBkColor(std::wstring bkcolor){ m_pBody->SetFixedBkColor(bkcolor); }
 	void Grid::SetGridLineColor(std::wstring bkcolor){ m_pBody->SetGridLineColor(bkcolor); }
 
-	bool Grid::AddHeaderItem(std::wstring text, int width){ return m_pBody->AddHeaderItem(text, width); }
+	GridItem* Grid::AddHeaderItem(std::wstring text, int width){ return m_pBody->AddHeaderItem(text, width); }
 	bool Grid::AddRow(){ return m_pBody->AddRow(); }
+
+	GridItem *Grid::GetGridItem(int row, int col){ return m_pBody->GetGridItem(row, col); }
 
 	void Grid::PaintChild(IRenderContext* pRender, const UiRect& rcPaint)
 	{

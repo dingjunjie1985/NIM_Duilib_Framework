@@ -3,19 +3,15 @@
 
 namespace ui
 {
-	typedef std::vector<GridItem> GridRow; 
+	typedef std::vector<GridItem*> GridRow; 
 	typedef std::vector<int> GridLayout;
 
-	class GridHeader;
 	class Grid;
 	class GridBody : public Box
 	{
 		friend class Grid;
 	protected:
-		GridBody(){
-			m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
-			m_vecRow.push_back(new GridRow());
-		};
+		GridBody(Grid *pGrid);
 		virtual ~GridBody(){};
 
 		void DetachControl(){ m_pGrid = nullptr; };
@@ -41,22 +37,26 @@ namespace ui
 		void SetFixedBkColor(std::wstring bkcolor);
 		void SetGridLineColor(std::wstring bkcolor);
 
-		bool AddHeaderItem(std::wstring text, int width = 80);
+		GridItem* AddHeaderItem(std::wstring text, int width = 80);
 		bool AddRow();
 
+		GridItem *GetGridItem(int row, int col);
 	protected:
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;
+		virtual bool OnMouseDoubleClick(EventArgs& msg);		//no override
 
 		
 		virtual void PaintStatusColor(IRenderContext* pRender) override;
 		virtual void PaintText(IRenderContext* pRender) override;
 		virtual void PaintBorder(IRenderContext* pRender) override;
-		
+	protected:
+		bool OnComboEditSelected(EventArgs *args);
 
 	private:
 		int _SumIntList(const std::vector<int> &vec);
 		GridRow* _GetHeader() const;
+		void _EndEdit();
 	protected:
 		Grid *m_pGrid = nullptr;
 
@@ -71,5 +71,11 @@ namespace ui
 		std::wstring m_strGridLineColor;
 
 		UINT	m_uTextStyle = DT_CENTER | DT_CENTER | DT_VCENTER | DT_SINGLELINE;
+
+		RichEdit *m_pReEdit = nullptr;
+		Combo *m_pComboEdit = nullptr;
+
+		GridItem *m_pReEditGridItem = nullptr;
+		GridItem *m_pComboEditGridItem = nullptr;
 	};
 }

@@ -188,9 +188,6 @@
     <ClCompile Include="Control\GridBody.cpp">
       <Filter>Source Files\Control</Filter>
     </ClCompile>
-    <ClCompile Include="Control\GridHeader.cpp">
-      <Filter>Source Files\Control</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -358,7 +355,7 @@
     <ClInclude Include="Control\GridBody.h">
       <Filter>Header Files\Control</Filter>
     </ClInclude>
-    <ClInclude Include="Control\GridHeader.h">
+    <ClInclude Include="Control\GridBase.h">
       <Filter>Header Files\Control</Filter>
     </ClInclude>
   </ItemGroup>

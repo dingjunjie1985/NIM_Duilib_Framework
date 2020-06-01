@@ -22,7 +22,7 @@ short GlobalManager::m_S = 100;
 short GlobalManager::m_L = 100;
 
 std::wstring GlobalManager::m_strDefaultFontName;
-std::wstring GlobalManager::m_strDefaultDisabledColor = L"textdefaultdisablecolor";
+std::wstring GlobalManager::m_strDefaultDisabledColor = L"textdefaultdisabledcolor";
 std::wstring GlobalManager::m_strDefaultFontColor = L"textdefaultcolor";
 DWORD GlobalManager::m_dwDefaultLinkFontColor = 0xFF0000FF;
 DWORD GlobalManager::m_dwDefaultLinkHoverFontColor = 0xFFD3215F;

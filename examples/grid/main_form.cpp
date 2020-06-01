@@ -34,23 +34,56 @@ std::wstring MainForm::GetWindowClassName() const
 void MainForm::InitWindow()
 {
 	Grid *grid = static_cast<Grid*>(FindControl(L"grid"));
-	std::wstring header[] = { L"行号", L"代码", L"名称", L"类型", L"长度", L"顺序号",
+	std::wstring header[] = { L"代码", L"名称", L"类型", L"长度", L"顺序号",
 		L"编辑模式", L"是否显示", L"参数类型", L"参数值", L"默认值" };
+
+	std::vector <std::wstring> vecTypeString;
+	vecTypeString.push_back(L"String");
+	vecTypeString.push_back(L"Integer");
+	vecTypeString.push_back(L"Float");
+	vecTypeString.push_back(L"Date");
+	vecTypeString.push_back(L"DateTime");
+	vecTypeString.push_back(L"File");
+	vecTypeString.push_back(L"List");
+	vecTypeString.push_back(L"Text");
+	vecTypeString.push_back(L"LongText");
+	vecTypeString.push_back(L"Lua");
+
+	std::vector <std::wstring> vecEditModeString;
+	vecEditModeString.push_back(L"Normal");
+	vecEditModeString.push_back(L"Drop");
+
+	std::vector <std::wstring> vecParamTypeString;
+	vecParamTypeString.push_back(L"List");
+	vecParamTypeString.push_back(L"TreeList");
+	vecParamTypeString.push_back(L"SQLList");
+	vecParamTypeString.push_back(L"AutoUnique");
+	vecParamTypeString.push_back(L"AutoComplete");
+	vecParamTypeString.push_back(L"AutoC***eCode");
+	vecParamTypeString.push_back(L"CheckTreeList");
+	vecParamTypeString.push_back(L"SQLChe***eeList");
+
 	for (int i = 0; i < sizeof(header) / sizeof(header[0]); i++)
 	{
-		if (i == 0)
-			grid->AddHeaderItem(header[i], 30);
-		else
-			grid->AddHeaderItem(header[i]);
+		GridItem *header_item = grid->AddHeaderItem(header[i]);
+		if (i == 2)
+		{
+			header_item->InitTypeCombo(vecTypeString);
+		}
+		else if (i == 5)
+		{
+			header_item->InitTypeCombo(vecEditModeString);
+		}
+		else if (i == 7)
+		{
+			header_item->InitTypeCombo(vecParamTypeString);
+		}
 	}
 
-	for (size_t i = 0; i < 100; i++)
+	/*for (size_t i = 0; i < 100; i++)
 	{
 		grid->AddRow();
-	}
-
-	grid->SetFixedColCount(1);
-	grid->SetFixedRowCount(1);
+	}*/
 
 	RichEdit *re_fixed_row = static_cast<RichEdit*>(FindControl(L"re_fixed_row"));
 	RichEdit *re_fixed_col = static_cast<RichEdit*>(FindControl(L"re_fixed_col"));

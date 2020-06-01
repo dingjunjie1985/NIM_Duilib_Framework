@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "GridBody.h"
-//#include "GridHeader.h"
 
 namespace ui
 {
@@ -15,6 +14,45 @@ namespace ui
 		assert(m_vecRow.size() > 0);
 		return m_vecRow[0];
 	}
+	void GridBody::_EndEdit()
+	{
+		if (m_pComboEditGridItem)
+		{
+			assert(m_pComboEdit->IsVisible());
+			m_pComboEditGridItem = nullptr;
+			m_pComboEdit->SetVisible_(false);
+		}
+		if (m_pReEditGridItem)
+		{
+			assert(m_pReEdit->IsVisible());
+			m_pReEditGridItem->text = m_pReEdit->GetText();
+			m_pReEdit->SetVisible_(false);
+			m_pReEditGridItem = nullptr;
+		}
+	}
+
+	GridBody::GridBody(Grid *pGrid) : m_pGrid(pGrid){
+		m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
+		m_vecRow.push_back(new GridRow());
+		AddHeaderItem(L"ÐÐºÅ", 30);
+		SetFixedColCount(1);
+		SetFixedRowCount(1);
+
+		m_pReEdit = new RichEdit;
+		m_pReEdit->SetAttribute(L"class", L"simple");
+		m_pReEdit->SetAttribute(L"bkcolor", L"white");
+		m_pReEdit->SetAttribute(L"align", L"vcenter");
+		m_pReEdit->SetAttribute(L"padding", L"2,0,2,0");
+		m_pReEdit->SetVisible_(false);
+		Add(m_pReEdit);
+
+		m_pComboEdit = new Combo;
+		m_pComboEdit->SetAttribute(L"class", L"combo2");
+		m_pComboEdit->SetAttribute(L"bkcolor", L"white");
+		m_pComboEdit->SetVisible_(false);
+		m_pComboEdit->AttachSelect(nbase::Bind(&GridBody::OnComboEditSelected, this, std::placeholders::_1));
+		Add(m_pComboEdit);
+	};
 
 	int GridBody::GetColCount() const
 	{
@@ -118,20 +156,20 @@ namespace ui
 		Invalidate();
 	}
 	
-	bool GridBody::AddHeaderItem(std::wstring text, int width)
+	GridItem* GridBody::AddHeaderItem(std::wstring text, int width)
 	{
 		assert(m_vecRow.size() > 0 && _GetHeader()->size() == m_hLayout.size());
-		GridItem item(text);
+		GridItem *item = new GridItem(text);
 		_GetHeader()->push_back(item);
 		m_hLayout.push_back(width);
 		SetFixedWidth(_SumIntList(m_hLayout));
 		for (size_t i = 1; i < m_vecRow.size(); i++)
 		{
-			m_vecRow[i]->push_back(GridItem());
+			m_vecRow[i]->push_back(new GridItem);
 		}
 
 		Invalidate();
-		return true;
+		return item;
 	}
 	
 	bool GridBody::AddRow()
@@ -141,10 +179,13 @@ namespace ui
 		wchar_t buf[16] = {};
 		for (size_t i = 0; i < m_hLayout.size(); i++)
 		{
+			GridItem *item = nullptr;
 			if (i == 0)
-				row->push_back(GridItem(_itow(m_vecRow.size(), buf, 10)));
+				item = new GridItem(_itow(m_vecRow.size(), buf, 10));
 			else
-				row->push_back(GridItem(_itow(m_vecRow.size(), buf, 10)));
+				item = new GridItem();
+			row->push_back(item);
+			item->CopyType(GetGridItem(0, i));
 		}
 
 		m_vecRow.push_back(row);
@@ -155,23 +196,152 @@ namespace ui
 		return true;
 	}
 
+	GridItem *GridBody::GetGridItem(int row, int col)
+	{
+		assert(_GetHeader()->size() == m_hLayout.size() && m_vecRow.size() == m_vLayout.size());
+		GridItem *item = nullptr;
+		if (row < m_vecRow.size() && col < m_vecRow[row]->size())
+		{
+			item = m_vecRow[row]->at(col);
+		}
+		return item;
+	}
+
 	void GridBody::HandleMessage(EventArgs& event)
 	{
-		/*if (!IsMouseEnabled() && event.Type > kEventMouseBegin && event.Type < kEventMouseEnd) {
+		if (!IsMouseEnabled() && event.Type > kEventMouseBegin && event.Type < kEventMouseEnd) {
 			if (m_pParent != NULL) m_pParent->HandleMessageTemplate(event);
 			else Box::HandleMessage(event);
 			return;
 		}
-		if (true)
+		bool bHandle = false;
+		if (event.Type == kEventInternalDoubleClick)
 		{
-
-		}*/
-		return __super::HandleMessage(event);
+			OnMouseDoubleClick(event);
+			bHandle = true;
+		}
+		if (!bHandle)
+			__super::HandleMessage(event);
 	}
 
 	bool GridBody::ButtonDown(EventArgs& msg)
 	{
-		printf("GridBody::ButtonDown {%d, %d}\n", msg.ptMouse.x, msg.ptMouse.y);
+		_EndEdit();
+		return true;
+	}
+
+	bool GridBody::OnMouseDoubleClick(EventArgs& msg)
+	{
+		int fixed_row_height = GetFixedRowHeight();
+		int fixed_col_width = GetFixedColWidth();
+		CSize szoff = m_pGrid->GetScrollPos();
+
+		CPoint pt = msg.ptMouse;
+		pt.Offset(-m_rcItem.left, -m_rcItem.top);
+		assert(pt.x > 0 && pt.y > 0 );
+		UiRect rcFixed({ 0, 0, fixed_col_width, fixed_row_height });
+		if (rcFixed.IsPointIn(pt))		//in position of fixed row and fixed col
+		{
+			printf("GridBody::OnMouseDoubleClick fixed row and fixed col\n");
+			return true;
+		}
+
+		UiRect rcFixedRow({ fixed_col_width, 0, m_pGrid->GetWidth(), fixed_row_height });
+		if (rcFixedRow.IsPointIn(pt))	//in position of fixed row 
+		{
+			printf("GridBody::OnMouseDoubleClick fixed row \n");
+			return true;
+		}
+
+		UiRect rcFixedCol({ 0, fixed_row_height, fixed_col_width, m_pGrid->GetHeight() });
+		if (rcFixedCol.IsPointIn(pt))	//in position of fixed col 
+		{
+			printf("GridBody::OnMouseDoubleClick fixed col \n");
+			return true;
+		}
+		
+		//in position normal grid item
+		assert(pt.x - fixed_col_width > 0 && pt.y - fixed_row_height > 0 && pt.x < m_pGrid->GetWidth() && pt.y < m_pGrid->GetHeight());
+		if (pt.x - fixed_col_width > 0 && pt.y - fixed_row_height > 0 && pt.x < m_pGrid->GetWidth() && pt.y < m_pGrid->GetHeight())
+		{
+			CPoint ptOff = pt, lefttop, position;
+			ptOff.Offset(szoff.cx, szoff.cy);
+			int posx = 0, posy = 0;
+			bool bFind = false;
+			for (size_t i = 0; i < GetRowCount(); i++)
+			{
+				posy += m_vLayout[i];
+				if (posy >= ptOff.y)
+				{
+					for (size_t j = 0; j < GetColCount(); j++)
+					{
+						posx += m_hLayout[j];
+						if (posx >= ptOff.x)
+						{
+							bFind = true;
+							position.x = j;
+							break;
+						}
+					}
+					position.y = i;
+					break;
+				}
+			}
+			assert(bFind);
+			if (bFind)
+			{
+				GridItem *item = GetGridItem(position.y, position.x);
+				assert(item);
+				if (item)
+				{
+					wprintf(L"GridBody::OnMouseDoubleClick {%d, %d} %s\n", position.x, position.y, item->text.c_str());
+					if (item->type == GIT_String || item->type == GIT_Int || item->type == GIT_Double)
+					{
+						m_pReEdit->SetVisible_(true);
+						m_pReEdit->SetFixedWidth(m_hLayout[position.x] - 1);
+						m_pReEdit->SetFixedHeight(m_vLayout[position.y] - 1);
+						m_pReEdit->SetMargin({ posx - m_hLayout[position.x] - szoff.cx, posy - m_vLayout[position.y] - szoff.cy, 0, 0 });
+						m_pReEdit->SetText(item->text);
+						m_pReEdit->SetFocus();
+						m_pReEdit->SetSelAll();
+						m_pReEditGridItem = item;
+					}
+					else if (item->type == GIT_Combo)
+					{
+						m_pComboEdit->SetVisible_(true);
+						m_pComboEdit->SetFixedWidth(m_hLayout[position.x] - 1);
+						m_pComboEdit->SetFixedHeight(m_vLayout[position.y] - 1);
+						m_pComboEdit->SetMargin({ posx - m_hLayout[position.x] - szoff.cx, posy - m_vLayout[position.y] - szoff.cy, 0, 0 });
+
+						m_pComboEdit->RemoveAll();
+						for (size_t i = 0; i < item->combo_list.size(); i++)
+						{
+							ListContainerElement *combo_item = new ListContainerElement;
+							combo_item->SetFixedHeight(20);
+							combo_item->SetText(item->combo_list[i]);
+							m_pComboEdit->Add(combo_item);
+							if (item->text == item->combo_list[i])
+								m_pComboEdit->SelectItem(i);
+						}
+						m_pComboEditGridItem = item;
+					}
+					else if (item->type == GIT_Date)
+					{
+
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool GridBody::OnComboEditSelected(EventArgs *args)
+	{
+		if (m_pComboEditGridItem && m_pComboEdit && m_pComboEdit->IsVisible())
+		{
+			m_pComboEditGridItem->text = m_pComboEdit->GetText();
+		}
 		return true;
 	}
 
@@ -274,7 +444,7 @@ namespace ui
 			{
 				UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 				rc.Offset({ m_rcItem.left, m_rcItem.top });
-				pRender->DrawText(rc, grid_row->at(j).text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+				pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
 				posx += m_hLayout[j];
 			}
 			posy += m_vLayout[i];
@@ -295,7 +465,7 @@ namespace ui
 				{
 					UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 					rc.Offset({ m_rcItem.left - szoff.cx, m_rcItem.top });
-					pRender->DrawText(rc, grid_row->at(j).text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+					pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
 					posx += m_hLayout[j];
 				}
 				posy += m_vLayout[i];
@@ -317,7 +487,7 @@ namespace ui
 					GridRow *grid_row = m_vecRow[j];
 					UiRect rc = { posx, posy, posx + m_hLayout[i], posy + m_vLayout[j] };
 					rc.Offset({ m_rcItem.left, m_rcItem.top - szoff.cy });
-					pRender->DrawText(rc, grid_row->at(i).text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+					pRender->DrawText(rc, grid_row->at(i)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
 					posy += m_vLayout[j];
 				}
 				posx += m_hLayout[i];
@@ -339,7 +509,7 @@ namespace ui
 				{
 					UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 					rc.Offset({ m_rcItem.left - szoff.cx, m_rcItem.top - szoff.cy });
-					pRender->DrawText(rc, grid_row->at(j).text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+					pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
 					posx += m_hLayout[j];
 				}
 				posy += m_vLayout[i];

@@ -1,9 +1,8 @@
 #pragma once
+#include "GridBase.h"
 
 namespace ui
 {
-
-	class GridHeader;
 	class GridBody;
 	class UILIB_API Grid : public ScrollableBox
 	{
@@ -32,9 +31,10 @@ namespace ui
 		void SetFixedBkColor(std::wstring bkcolor);
 		void SetGridLineColor(std::wstring bkcolor);
 		
-
-		bool AddHeaderItem(std::wstring text, int width = 80);
+		GridItem* AddHeaderItem(std::wstring text, int width = 80);
 		bool AddRow();
+
+		GridItem *GetGridItem(int row, int col);
 
 	protected:
 		

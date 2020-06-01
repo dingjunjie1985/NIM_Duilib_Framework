@@ -47,7 +47,7 @@
 
     <!--文字色值，不带透明层-->
     <TextColor name="textdefaultcolor" value="#ff333333"/>
-    <TextColor name="textdefaultdisablecolor" value="#ffa1aebc"/>
+    <TextColor name="textdefaultdisabledcolor" value="#ffa1aebc"/>
 
     <!--窗口常用背景色-->
     <TextColor name="bk_main_wnd_title" value="#ff238efa"/>
@@ -110,11 +110,15 @@
     <Class name="checkbox_font12" height="16" textpadding="20,0,0,0" font="system_12" normaltextcolor="darkcolor" normalimage="file='../public/CheckBox/check_no.png' dest='0,0,16,16'" disabledimage="file='../public/CheckBox/check_no.png' dest='0,0,16,16' fade='80'" selectednormalimage="file='../public/CheckBox/check_yes.png' dest='0,0,16,16'" selecteddisabledimage="file='../public/CheckBox/check_yes.png' dest='0,0,16,16' fade='80'"/>
     <Class name="checkbox_font14" height="20" textpadding="20,0,0,0" font="system_14" normaltextcolor="darkcolor" normalimage="file='../public/CheckBox/check_no.png' dest='0,2,16,18'" disabledimage="file='../public/CheckBox/check_no.png' dest='0,2,16,18' fade='80'" selectednormalimage="file='../public/CheckBox/check_yes.png' dest='0,2,16,18'" selecteddisabledimage="file='../public/CheckBox/check_yes.png' dest='0,2,16,18' fade='80'"/>
     <Class name="checkbox_green" normalimage="file='../public/CheckBox/check_green_no.png'" disabledimage="file='../public/CheckBox/check_green_no.png' fade='80'" selectednormalimage="file='../public/CheckBox/check_green_yes.png'" selecteddisabledimage="file='../public/CheckBox/check_green_yes.png' fade='80'"/>
-    
+
+    <!--下拉框-->
+    <Class name="combo" value="normalimage=&quot;file='../public/combo/combo24.png' corner='3,3,24,3' textpadding='3,3,24,3'&quot; hotimage=&quot;file='../public/combo/combo24_hover.png' corner='3,3,24,3' textpadding='3,3,24,3'&quot; "/>
+    <Class name="combo2" value="normalimage=&quot;file='../public/combo/combo24_.png' corner='2,2,18,2' textpadding='2,2,18,2'&quot; hotimage=&quot;file='../public/combo/combo24_hover_.png' corner='2,2,18,2' textpadding='2,2,18,2'&quot; "/>
+  
     <!--按钮-->
-    <Class name="btn_global_blue_80x30" font="system_bold_14" normaltextcolor="white" normalimage="file='../public/button/btn_global_blue_80x30_normal.png'" hotimage="file='../public/button/btn_global_blue_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_blue_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_blue_80x30_normal.png' fade='80'"/>
-    <Class name="btn_global_white_80x30" font="system_bold_14" normaltextcolor="dark_gray" normalimage="file='../public/button/btn_global_white_80x30_normal.png'" hotimage="file='../public/button/btn_global_white_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_white_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_white_80x30_normal.png' fade='128'"/>
-    <Class name="btn_global_red_80x30" font="system_bold_14" normaltextcolor="white" normalimage="file='../public/button/btn_global_red_80x30_normal.png'" hotimage="file='../public/button/btn_global_red_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_red_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_red_80x30_normal.png' fade='80'"/>
+    <Class name="btn_global_blue" font="system_bold_12" normaltextcolor="white" normalimage="file='../public/button/btn_global_blue_80x30_normal.png'" hotimage="file='../public/button/btn_global_blue_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_blue_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_blue_80x30_normal.png' fade='80'"/>
+    <Class name="btn_global_white" font="system_bold_12" normaltextcolor="dark_gray" normalimage="file='../public/button/btn_global_white_80x30_normal.png'" hotimage="file='../public/button/btn_global_white_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_white_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_white_80x30_normal.png' fade='128'"/>
+    <Class name="btn_global_red" font="system_bold_12" normaltextcolor="white" normalimage="file='../public/button/btn_global_red_80x30_normal.png'" hotimage="file='../public/button/btn_global_red_80x30_hovered.png'" pushedimage="file='../public/button/btn_global_red_80x30_pushed.png'" disabledimage="file='../public/button/btn_global_red_80x30_normal.png' fade='80'"/>
 
     <!--窗口右上角按钮 灰色版 -->
     <Class name="btn_wnd_min" width="auto" height="auto" forenormalimage="file='../public/button/btn_wnd_gray_min.png' dest='4,4,16,16'" normalimage="" hotimage="../public/button/btn_wnd_gray_min_hovered.png" pushedimage="../public/button/btn_wnd_gray_min_pushed.png"/>
@@ -155,7 +159,7 @@
     <Class name="splitline_ver_level1" bkcolor="splitline_level1" width="1"/>
 
     <!--富文本控件通用样式-->
-    <Class name="simple" multiline="false" autohscroll="true" wantreturnmsg="true" wanttab="false" rich="false" normaltextcolor="darkcolor" disabledtextcolor="textdefaultdisablecolor"/>
+    <Class name="simple" multiline="false" autohscroll="true" wantreturnmsg="true" wanttab="false" rich="false" normaltextcolor="darkcolor" disabledtextcolor="textdefaultdisabledcolor"/>
     <Class name="prompt" promptmode="true" promptcolor="light_gray"/>
     <Class name="edit" hotimage="file='../public/edit/edit1.png' corner='10,10,10,10'" focusedimage="file='../public/edit/edit2.png' corner='10,10,10,10'"/>
     <Class name="input" normalimage="file='../public/edit/edit0.png' corner='10,10,10,10'" hotimage="file='../public/edit/edit0.png' corner='10,10,10,10'" focusedimage="file='../public/edit/edit0.png' corner='10,10,10,10'" disabledimage="file='../public/edit/edit0.png' corner='10,10,10,10' fade='80'"/>
