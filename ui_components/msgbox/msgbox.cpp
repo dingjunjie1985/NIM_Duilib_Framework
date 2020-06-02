@@ -22,6 +22,19 @@ void ShowMsgBox(HWND hwnd, MsgboxCallback cb,
 	msgbox->Show(hwnd, cb);
 }
 
+void ShowMsgBoxModel(HWND hwnd, MsgboxCallback cb, const std::wstring &content,
+	const std::wstring &title, const std::wstring &yes, const std::wstring &no)
+{
+	MsgBox* msgbox = new MsgBox;
+	HWND hWnd = msgbox->Create(hwnd, L"", WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX, 0);
+	if (hWnd == NULL)
+		return;
+	msgbox->SetTitle(title);
+	msgbox->SetContent(content);
+	msgbox->SetButton(yes, no);
+	msgbox->Show(hwnd, cb, true);
+}
+
 const LPCTSTR MsgBox::kClassName = L"MsgBox";
 
 MsgBox::MsgBox()
@@ -164,13 +177,16 @@ void MsgBox::SetButton(const std::wstring &yes, const std::wstring &no)
 	}
 }
 
-void MsgBox::Show(HWND hwnd, MsgboxCallback cb)
+void MsgBox::Show(HWND hwnd, MsgboxCallback cb, bool model)
 {
 	msgbox_callback_ = cb;
 
 	::EnableWindow(hwnd, FALSE);
 	CenterWindow();
-	ShowWindow(true);
+	if (model && ::IsWindow(hwnd))
+		ShowModalFake(hwnd);
+	else
+		ShowWindow(true);
 }
 
 void MsgBox::EndMsgBox(MsgBoxRet ret)

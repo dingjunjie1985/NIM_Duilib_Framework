@@ -14,33 +14,49 @@ namespace ui
 		GridBody(Grid *pGrid);
 		virtual ~GridBody(){};
 
-		void DetachControl(){ m_pGrid = nullptr; };
 		void SetDefaultRowHeight(int height){ m_defaultRowHeight = height; };
 		int GetTotalRowHeight(){}
 
 	protected:	//pass by grid
 		int GetColCount() const;
+		void SetColCount(int count);
+
 		int GetRowCount() const;
+		void SetRowCount(int count);
+
 		int GetFixedColCount() const;
+		void SetFixedColCount(int fixed);
+
 		int GetFixedRowCount() const;
+		void SetFixedRowCount(int fixed);
+
+		int GetHeaderHeight() const;
+		void SetHeaderHeight(int height);
+
+		std::wstring GetFixedBkColor() const;
+		void SetFixedBkColor(std::wstring bkcolor);
+
+		std::wstring GetGridLineColor() const;
+		void SetGridLineColor(std::wstring bkcolor);
+	
 		int GetFixedColWidth() const;
 		int GetFixedRowHeight() const;
-		int GetHeaderHeight() const;
-		std::wstring GetFixedBkColor() const;
-		std::wstring GetGridLineColor() const;
 
-		void SetColCount(int count);
-		void SetRowCount(int count);
-		void SetFixedColCount(int fixed);
-		void SetFixedRowCount(int fixed);
-		void SetHeaderHeight(int height);
-		void SetFixedBkColor(std::wstring bkcolor);
-		void SetGridLineColor(std::wstring bkcolor);
+		std::wstring GetGridItemText(int row, int col);
+		bool SetGridItemText(std::wstring text, int row, int col);
+
+		bool IsGridItemFixed(int row, int col);
 
 		GridItem* AddHeaderItem(std::wstring text, int width = 80);
 		bool AddRow();
 
 		GridItem *GetGridItem(int row, int col);
+
+		bool RemoveRow(int row);
+		bool RemoveCol(int col);
+		void Clear(bool include_header);
+
+		void AttachTextChange(const EventCallback& callback)	{ this->OnEvent[kEventTextChange] += callback; }
 	protected:
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;
@@ -53,10 +69,12 @@ namespace ui
 	protected:
 		bool OnComboEditSelected(EventArgs *args);
 
-	private:
+	protected:
 		int _SumIntList(const std::vector<int> &vec);
 		GridRow* _GetHeader() const;
-		void _EndEdit();
+		virtual void _BeginEditGridItem(GridItem *item);
+		virtual void _EndEdit();
+		bool _GetGridItemByMouse(CPoint pt, CPoint& position);
 	protected:
 		Grid *m_pGrid = nullptr;
 

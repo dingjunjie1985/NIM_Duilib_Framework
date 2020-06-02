@@ -17,6 +17,10 @@ void ShowMsgBox(HWND hwnd, MsgboxCallback cb,
     const std::wstring &yes = L"STRING_OK", bool btn_yes_is_id = true,
     const std::wstring &no = L"", bool btn_no_is_id = false);
 
+//add by djj 20200602 simple use
+void ShowMsgBoxModel(HWND hwnd, MsgboxCallback cb, const std::wstring &content,
+	const std::wstring &title = L"提示",const std::wstring &yes = L"确定",const std::wstring &no = L"");
+
 class MsgBox : public ui::WindowImplBase
 {
 public:
@@ -25,6 +29,9 @@ public:
         const std::wstring &title, bool title_is_id,
         const std::wstring &yes, bool btn_yes_is_id,
         const std::wstring &no, bool btn_no_is_id);
+
+	friend void ShowMsgBoxModel(HWND hwnd, MsgboxCallback cb, const std::wstring &content, 
+		const std::wstring &title, const std::wstring &yes, const std::wstring &no);
 public:
 	MsgBox();
 	virtual ~MsgBox();
@@ -46,7 +53,7 @@ private:
 	void SetTitle(const std::wstring &str);
 	void SetContent(const std::wstring &str);
 	void SetButton(const std::wstring &yes, const std::wstring &no);
-	void Show(HWND hwnd, MsgboxCallback cb);
+	void Show(HWND hwnd, MsgboxCallback cb, bool model = false);		//add by djj 20200602 add param model
 
 	void EndMsgBox(MsgBoxRet ret);
 public:

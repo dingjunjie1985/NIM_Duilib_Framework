@@ -116,7 +116,6 @@
 #include "Box/TabBox.h"
 #include "Box/ChildBox.h"
 
-#include "Control/Grid.h"
 #include "Control/List.h"
 #include "Control/Combo.h"
 #include "Control/ScrollBar.h"
@@ -133,4 +132,7 @@
 
 #include "Control/RichEdit.h"
 #include "Control/VirtualListBox.h"
+
+#include "Control/Grid.h"
+#include "Control/GridBody.h"
 
