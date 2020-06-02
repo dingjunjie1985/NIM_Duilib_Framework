@@ -77,7 +77,20 @@ namespace ui
 		}
 	};
 
-	
+	class GridSelRange{
+		friend class GridBody;
+	public:
+		GridSelRange(GridBody *pBody) : m_pBody(pBody){};
+		~GridSelRange(){};
+		void Clear(){ m_vecRange.clear(); };
+
+		void SetSelItem(int row_index, int col_index, bool connect= false);
+		void SetSelRow(int row_index, bool connect = false);
+		void SetSelCol(int col_index, bool connect = false);
+	protected:
+		GridBody *m_pBody;
+		std::vector<UiRect> m_vecRange;			//用UiRect代表一块选中的区域的四个角
+	};
 
 	
 }

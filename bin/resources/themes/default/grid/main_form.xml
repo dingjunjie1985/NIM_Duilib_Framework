@@ -15,8 +15,14 @@
       <VListBox class="list" name="list" width="140" margin="10,30,5,30" bkcolor="splitline_level1"/>-->
       <Grid name="grid" margin="10,30,10,30" vscrollbar ="true" hscrollbar ="true" />
       <VBox width="80" margin="10,30,10,30">
-        <RichEdit class="simple prompt" name="re_fixed_row" height="20" margin="0,10,0,10" number="true" prompttext="fixed fow"/>
-        <RichEdit class="simple prompt" name="re_fixed_col" height="20" margin="0,10,0,10" number="true" prompttext="fixed col"/>
+        <Label height="18" margin="0,10" text="row:"/>
+        <RichEdit class="simple prompt" name="re_row" height="20" margin="0,10" number="true" prompttext="fixed fow"/>
+        <Label height="18" margin="0,10" text="col:"/>
+        <RichEdit class="simple prompt" name="re_col" height="20" margin="0,10" number="true" prompttext="fixed fow"/>
+        <Label height="18" margin="0,10" text="fixed_row:"/>
+        <RichEdit class="simple prompt" name="re_fixed_row" height="20" margin="0,10" number="true" prompttext="fixed fow"/>
+        <Label height="18" margin="0,10" text="fixed_col:"/>
+        <RichEdit class="simple prompt" name="re_fixed_col" height="20" margin="0,10" number="true" prompttext="fixed col"/>
       </VBox>
     </HBox>
   </VBox>

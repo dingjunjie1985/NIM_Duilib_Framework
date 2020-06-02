@@ -28,9 +28,9 @@ namespace ui
 		SetBorderColor(L"splitline_level1");
 		SetBorderSize({ 1, 1, 1, 1 });
 
-		SetHeaderHeight(32);
-		SetFixedBkColor(L"splitline_level2");
-		SetGridLineColor(L"grid_line");
+		//SetHeaderHeight(32);
+		//SetFixedBkColor(L"splitline_level2");
+		//SetGridLineColor(L"grid_line");
 		
 		if (m_pVerticalScrollBar)
 			m_pVerticalScrollBar->SetAutoHideScroll(false);
@@ -59,10 +59,13 @@ namespace ui
 	}
 
 	std::wstring Grid::GetFixedBkColor() const{ return m_pBody->GetFixedBkColor(); }
-	void Grid::SetFixedBkColor(std::wstring bkcolor){ m_pBody->SetFixedBkColor(bkcolor); }
+	void Grid::SetFixedBkColor(std::wstring color){ m_pBody->SetFixedBkColor(color); }
+
+	std::wstring Grid::GetSelForeColor() const{ return m_pBody->GetSelForeColor(); }
+	void Grid::SetSelForeColor(std::wstring color){ m_pBody->SetSelForeColor(color); }
 
 	std::wstring Grid::GetGridLineColor() const{ return m_pBody->GetGridLineColor(); }
-	void Grid::SetGridLineColor(std::wstring bkcolor){ m_pBody->SetGridLineColor(bkcolor); }
+	void Grid::SetGridLineColor(std::wstring color){ m_pBody->SetGridLineColor(color); }
 
 	std::wstring Grid::GetGridItemText(int row, int col){ return m_pBody->GetGridItemText(row, col); }
 	bool Grid::SetGridItemText(std::wstring text, int row, int col){ return m_pBody->SetGridItemText(text, row, col); }

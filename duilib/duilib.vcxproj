@@ -320,6 +320,7 @@
     <ClCompile Include="Box\VBox.cpp" />
     <ClCompile Include="Control\CircleProgress.cpp" />
     <ClCompile Include="Control\Grid.cpp" />
+    <ClCompile Include="Control\GridBase.cpp" />
     <ClCompile Include="Control\GridBody.cpp" />
     <ClCompile Include="Control\VirtualListBox.cpp" />
     <ClCompile Include="Core\Define.cpp" />

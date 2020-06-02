@@ -82,7 +82,7 @@ namespace ui
 		}
 	}
 
-	bool GridBody::_GetGridItemByMouse(CPoint pt, CPoint& position)
+	bool GridBody::_GetGridItemByMouse(CPoint pt, CPoint& position, bool fixed)
 	{
 		int fixed_row_height = GetFixedRowHeight();
 		int fixed_col_width = GetFixedColWidth();
@@ -93,24 +93,42 @@ namespace ui
 		if (pt.x <= 0 || pt.y <= 0)
 			return false;
 		UiRect rcFixed({ 0, 0, fixed_col_width, fixed_row_height });
-		if (rcFixed.IsPointIn(pt))		//in position of fixed row and fixed col
-		{
-			printf("GridBody::OnMouseDoubleClick fixed row and fixed col\n");
-			return false;
-		}
-
 		UiRect rcFixedRow({ fixed_col_width, 0, m_pGrid->GetWidth(), fixed_row_height });
-		if (rcFixedRow.IsPointIn(pt))	//in position of fixed row 
-		{
-			printf("GridBody::OnMouseDoubleClick fixed row \n");
-			return false;
-		}
-
 		UiRect rcFixedCol({ 0, fixed_row_height, fixed_col_width, m_pGrid->GetHeight() });
-		if (rcFixedCol.IsPointIn(pt))	//in position of fixed col 
+		if (rcFixed.IsPointIn(pt) || rcFixedRow.IsPointIn(pt) || rcFixedCol.IsPointIn(pt))		//in position of fixed row and fixed col
 		{
-			printf("GridBody::OnMouseDoubleClick fixed col \n");
-			return false;
+			printf("GridBody::OnMouseDoubleClick fixed row or fixed col\n");
+			bool bFind = false;
+			if (fixed)
+			{
+				int posx = 0, posy = 0;
+				CPoint pt_position;
+				for (size_t i = 0; i < GetRowCount(); i++)
+				{
+					posy += m_vLayout[i];
+					if (posy >= pt.y)
+					{
+						for (size_t j = 0; j < GetColCount(); j++)
+						{
+							posx += m_hLayout[j];
+							if (posx >= pt.x)
+							{
+								pt_position.x = j;
+								bFind = true;
+								break;
+							}
+						}
+						pt_position.y = i;
+						break;
+					}
+				}
+				assert(bFind);
+				if (bFind)
+				{
+					position = pt_position;
+				}
+			}
+			return bFind;
 		}
 
 		bool ret = false;
@@ -150,9 +168,42 @@ namespace ui
 		return ret;
 	}
 
-	GridBody::GridBody(Grid *pGrid) : m_pGrid(pGrid){
+	int GridBody::_GetGridItemTop(int row_index)
+	{
+		int posy = 0;
+		assert(row_index < GetRowCount());
+		if (row_index < GetRowCount())
+		{
+			for (size_t i = 0; i < row_index; i++)
+			{
+				posy += m_vLayout[i];
+			}
+		}
+		return posy;
+	}
+	int GridBody::_GetGridItemLeft(int col_index)
+	{
+		int posx = 0;
+		assert(col_index < GetColCount());
+		if (col_index < GetColCount())
+		{
+			for (size_t i = 0; i < col_index; i++)
+			{
+				posx += m_hLayout[i];
+			}
+		}
+		return posx;
+	}
+	UiRect GridBody::_GetGridItemPos(int row_index, int col_index)
+	{
+		int posx = _GetGridItemLeft(col_index), posy = _GetGridItemTop(row_index);
+		return UiRect(posx, posy, posx + m_hLayout[col_index], posy + m_vLayout[row_index]);
+	}
+
+	GridBody::GridBody(Grid *pGrid) : m_selRange(this), m_pGrid(pGrid){
 		m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
 		m_vecRow.push_back(new GridRow());
+		SetFixedHeight(m_defaultRowHeight);
 		AddHeaderItem(L"行号", 30);
 		SetFixedColCount(1);
 		SetFixedRowCount(1);
@@ -190,7 +241,22 @@ namespace ui
 	}
 	void GridBody::SetRowCount(int count)
 	{
-
+		assert(m_vLayout.size() == m_vecRow.size());
+		if (count > GetRowCount())
+		{
+			int dis = count - GetRowCount();
+			for (size_t i = 0; i < dis; i++)
+			{
+				AddRow();
+			}
+		}
+		else if (count < GetRowCount())
+		{
+			for (size_t i = GetRowCount() - 1; i <= count; i--)
+			{
+				RemoveRow(i);
+			}
+		}
 	}
 
 	int GridBody::GetFixedColCount() const
@@ -203,6 +269,7 @@ namespace ui
 		if (fixed <= GetColCount() && fixed != m_nFixedCol)
 		{
 			m_nFixedCol = fixed;
+			m_selRange.Clear();
 			Invalidate();
 		}
 	}
@@ -217,6 +284,7 @@ namespace ui
 		if (fixed <= GetRowCount() && fixed != m_nFixedRow)
 		{
 			m_nFixedRow = fixed;
+			m_selRange.Clear();
 			Invalidate();
 		}
 	}
@@ -245,9 +313,19 @@ namespace ui
 	{
 		return m_strFixedBkColor;
 	}
-	void GridBody::SetFixedBkColor(std::wstring bkcolor)
+	void GridBody::SetFixedBkColor(std::wstring color)
 	{
-		m_strFixedBkColor = bkcolor;
+		m_strFixedBkColor = color;
+		Invalidate();
+	}
+
+	std::wstring GridBody::GetSelForeColor() const
+	{
+		return m_strSelForeColor;
+	}
+	void GridBody::SetSelForeColor(std::wstring color)
+	{
+		m_strSelForeColor = color;
 		Invalidate();
 	}
 
@@ -255,9 +333,9 @@ namespace ui
 	{
 		return m_strGridLineColor;
 	}
-	void GridBody::SetGridLineColor(std::wstring bkcolor)
+	void GridBody::SetGridLineColor(std::wstring color)
 	{
-		m_strGridLineColor = bkcolor;
+		m_strGridLineColor = color;
 		Invalidate();
 	}
 
@@ -327,6 +405,7 @@ namespace ui
 			m_vecRow[i]->push_back(new GridItem(L"", i, col_index));
 		}
 
+		m_selRange.Clear();
 		Invalidate();
 		return item;
 	}
@@ -352,6 +431,8 @@ namespace ui
 		m_vLayout.push_back(m_defaultRowHeight);
 		assert(m_vecRow.size() == m_vLayout.size());
 		SetFixedHeight(_SumIntList(m_vLayout));
+
+		m_selRange.Clear();
 		Invalidate();
 		return true;
 	}
@@ -381,6 +462,7 @@ namespace ui
 			}
 			delete grid_row;
 			m_vecRow.erase(m_vecRow.begin() + row);
+			//下面行的GridItem的row_index--
 			for (size_t i = row; i < m_vecRow.size(); i++)
 			{
 				GridRow *row = m_vecRow[i];
@@ -448,6 +530,25 @@ namespace ui
 	bool GridBody::ButtonDown(EventArgs& msg)
 	{
 		_EndEdit();
+		CPoint position;
+		bool bFind = _GetGridItemByMouse(msg.ptMouse, position, true);
+		if (bFind)
+		{
+			if (position.x < m_nFixedCol && position.y < m_nFixedRow)
+			{
+				return true;
+			}
+			if (position.x < m_nFixedCol)			//点击fixed col	选择行
+			{
+				m_selRange.SetSelRow(position.y);	
+			}
+			else if (position.y < m_nFixedRow)		//点击fixed row 选择列
+			{
+				m_selRange.SetSelCol(position.x);
+			}
+			else
+				m_selRange.SetSelItem(position.y, position.x);
+		}
 		return true;
 	}
 
@@ -484,6 +585,7 @@ namespace ui
 	void GridBody::PaintStatusColor(IRenderContext* pRender)
 	{
 		__super::PaintStatusColor(pRender);
+		//paint fixed
 		int fixed_row_height = GetFixedRowHeight();
 		int fixed_col_width = GetFixedColWidth();
 		if (fixed_row_height > 0)
@@ -497,6 +599,28 @@ namespace ui
 			UiRect rcPaint = GetPos();
 			rcPaint.right = rcPaint.left + fixed_col_width;
 			pRender->DrawColor(rcPaint, m_strFixedBkColor, 255);
+		}
+		//paint sel item
+		UiRect rcClip = m_pGrid->GetPos();
+		rcClip.left += GetFixedColWidth();
+		rcClip.top += GetFixedRowHeight();;
+		AutoClip clip(pRender, rcClip, m_bClip);
+
+		CSize szOff = m_pGrid->GetScrollPos();
+		UiRect rcPaint = GetPos();
+		for (size_t i = 0; i < m_selRange.m_vecRange.size(); i++)
+		{
+			UiRect rcRange = m_selRange.m_vecRange[i];
+			for (size_t r = rcRange.top; r <= rcRange.bottom; r++)
+			{
+				for (size_t l = rcRange.left; l <= rcRange.right; l++)
+				{
+					UiRect rcPos = _GetGridItemPos(r, l);
+					rcPos.Offset(rcPaint.left - szOff.cx, rcPaint.top- szOff.cy);
+					rcPos.Deflate({ 1, 1, 2, 2, });
+					pRender->DrawColor(rcPos, m_strSelForeColor, 255);
+				}
+			}
 		}
 	}
 

@@ -90,6 +90,7 @@
 
     <!--duilib控件相关颜色-->
     <TextColor name="grid_line" value="#ffcccccc"/>
+    <TextColor name="grid_sel_fore" value="#ff20b0fb"/>
 
     <!--字体大小-->
     <Class name="font_title" font="system_14"/>

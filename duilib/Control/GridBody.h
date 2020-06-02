@@ -10,6 +10,7 @@ namespace ui
 	class GridBody : public Box
 	{
 		friend class Grid;
+		friend class GridSelRange;
 	protected:
 		GridBody(Grid *pGrid);
 		virtual ~GridBody(){};
@@ -34,10 +35,13 @@ namespace ui
 		void SetHeaderHeight(int height);
 
 		std::wstring GetFixedBkColor() const;
-		void SetFixedBkColor(std::wstring bkcolor);
+		void SetFixedBkColor(std::wstring color);
+
+		std::wstring GetSelForeColor() const;
+		void SetSelForeColor(std::wstring color);
 
 		std::wstring GetGridLineColor() const;
-		void SetGridLineColor(std::wstring bkcolor);
+		void SetGridLineColor(std::wstring color);
 	
 		int GetFixedColWidth() const;
 		int GetFixedRowHeight() const;
@@ -74,7 +78,10 @@ namespace ui
 		GridRow* _GetHeader() const;
 		virtual void _BeginEditGridItem(GridItem *item);
 		virtual void _EndEdit();
-		bool _GetGridItemByMouse(CPoint pt, CPoint& position);
+		bool _GetGridItemByMouse(CPoint pt, CPoint& position, bool fixed = false);
+		int _GetGridItemTop(int row_index);
+		int _GetGridItemLeft(int col_index);
+		UiRect _GetGridItemPos(int row_index, int col_index);
 	protected:
 		Grid *m_pGrid = nullptr;
 
@@ -84,9 +91,12 @@ namespace ui
 		unsigned int m_nFixedCol = 0;
 		unsigned int m_nFixedRow = 0;
 
+		GridSelRange m_selRange;
+
 		int m_defaultRowHeight = 24;
-		std::wstring m_strFixedBkColor;
-		std::wstring m_strGridLineColor;
+		std::wstring m_strFixedBkColor = L"splitline_level2";
+		std::wstring m_strSelForeColor = L"grid_sel_fore";
+		std::wstring m_strGridLineColor = L"grid_line";
 
 		UINT	m_uTextStyle = DT_CENTER | DT_CENTER | DT_VCENTER | DT_SINGLELINE;
 

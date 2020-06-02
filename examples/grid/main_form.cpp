@@ -85,11 +85,42 @@ void MainForm::InitWindow()
 		grid->AddRow();
 	}*/
 
+	RichEdit *re_row = static_cast<RichEdit*>(FindControl(L"re_row"));
+	RichEdit *re_col = static_cast<RichEdit*>(FindControl(L"re_col"));
 	RichEdit *re_fixed_row = static_cast<RichEdit*>(FindControl(L"re_fixed_row"));
 	RichEdit *re_fixed_col = static_cast<RichEdit*>(FindControl(L"re_fixed_col"));
+	re_row->SetText(nbase::IntToString16(grid->GetRowCount()));
+	re_col->SetText(nbase::IntToString16(grid->GetColCount()));
 	re_fixed_row->SetText(nbase::IntToString16(grid->GetFixedRowCount()));
 	re_fixed_col->SetText(nbase::IntToString16(grid->GetFixedColCount()));
-	re_fixed_row->AttachReturn([this, grid, re_fixed_row](ui::EventArgs* args){
+	
+	re_row->AttachBubbledEvent(kEventKillFocus, [this, grid, re_row](ui::EventArgs* args){
+		std::wstring text = re_row->GetText();
+		if (!text.empty())
+		{
+			int row = 0;
+			if (nbase::StringToInt(text, &row))
+			{
+				grid->SetRowCount(row);
+			}
+		}
+		return true;
+	});
+
+	re_col->AttachBubbledEvent(kEventKillFocus, [this, grid, re_col](ui::EventArgs* args){
+		std::wstring text = re_col->GetText();
+		if (!text.empty())
+		{
+			int col = 0;
+			if (nbase::StringToInt(text, &col))
+			{
+				grid->SetColCount(col);
+			}
+		}
+		return true;
+	});
+	
+	re_fixed_row->AttachBubbledEvent(kEventKillFocus, [this, grid, re_fixed_row](ui::EventArgs* args){
 		std::wstring text = re_fixed_row->GetText();
 		if (!text.empty())
 		{
@@ -102,7 +133,7 @@ void MainForm::InitWindow()
 		return true;
 	});
 
-	re_fixed_col->AttachReturn([this, grid, re_fixed_col](ui::EventArgs* args){
+	re_fixed_col->AttachBubbledEvent(kEventKillFocus, [this, grid, re_fixed_col](ui::EventArgs* args){
 		std::wstring text = re_fixed_col->GetText();
 		if (!text.empty())
 		{

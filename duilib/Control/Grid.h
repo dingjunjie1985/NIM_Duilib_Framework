@@ -36,10 +36,13 @@ namespace ui
 		int GetFixedRowHeight() const;
 
 		std::wstring GetFixedBkColor() const;
-		void SetFixedBkColor(std::wstring bkcolor);
+		void SetFixedBkColor(std::wstring color);
+
+		std::wstring GetSelForeColor() const;
+		void SetSelForeColor(std::wstring color);
 
 		std::wstring GetGridLineColor() const;
-		void SetGridLineColor(std::wstring bkcolor);
+		void SetGridLineColor(std::wstring color);
 
 		std::wstring GetGridItemText(int row, int col);
 		bool SetGridItemText(std::wstring text, int row, int col);
