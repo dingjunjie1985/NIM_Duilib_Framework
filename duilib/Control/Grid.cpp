@@ -9,7 +9,7 @@ namespace ui
 	Grid::~Grid(){
 	}
 
-	GridBody* Grid::ConstructGridBody()
+	GridBody* Grid::CreateGridBody()
 	{
 		return new GridBody(this);
 	}
@@ -19,7 +19,7 @@ namespace ui
 		if (m_bIsInit)
 			return;
 
-		m_pBody = ConstructGridBody();
+		m_pBody = CreateGridBody();
 		if (!m_pBody)
 			m_pBody = new GridBody(this);
 		Add(m_pBody);
@@ -28,7 +28,7 @@ namespace ui
 		SetBorderColor(L"splitline_level1");
 		SetBorderSize({ 1, 1, 1, 1 });
 
-		//SetHeaderHeight(32);
+		SetHeaderHeight(m_pBody->m_defaultRowHeight);
 		//SetFixedBkColor(L"splitline_level2");
 		//SetGridLineColor(L"grid_line");
 		

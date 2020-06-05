@@ -11,7 +11,7 @@ namespace ui
 	public:
 		Grid();
 		virtual ~Grid();
-		virtual GridBody* ConstructGridBody();		//继承类需要重载这个接口 并实现自定义GridBody
+		virtual GridBody* CreateGridBody();		//继承类需要重载这个接口 并实现自定义GridBody
 		virtual void Init() override;
 	public:
 		

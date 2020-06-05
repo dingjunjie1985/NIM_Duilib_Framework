@@ -95,13 +95,18 @@ namespace ui
 		UiRect rcFixed({ 0, 0, fixed_col_width, fixed_row_height });
 		UiRect rcFixedRow({ fixed_col_width, 0, m_pGrid->GetWidth(), fixed_row_height });
 		UiRect rcFixedCol({ 0, fixed_row_height, fixed_col_width, m_pGrid->GetHeight() });
-		if (rcFixed.IsPointIn(pt) || rcFixedRow.IsPointIn(pt) || rcFixedCol.IsPointIn(pt))		//in position of fixed row and fixed col
+		if (rcFixed.IsPointIn(pt) || rcFixedRow.IsPointIn(pt) || rcFixedCol.IsPointIn(pt))		//in position of fixed row or fixed col
 		{
-			printf("GridBody::OnMouseDoubleClick fixed row or fixed col\n");
 			bool bFind = false;
 			if (fixed)
 			{
 				int posx = 0, posy = 0;
+				if (rcFixed.IsPointIn(pt))			//in position of fixed row or fixed col
+					;
+				else if (rcFixedRow.IsPointIn(pt))
+					posx = -szoff.cx;
+				else if (rcFixedCol.IsPointIn(pt))
+					posy = -szoff.cy;
 				CPoint pt_position;
 				for (size_t i = 0; i < GetRowCount(); i++)
 				{
@@ -534,6 +539,7 @@ namespace ui
 		bool bFind = _GetGridItemByMouse(msg.ptMouse, position, true);
 		if (bFind)
 		{
+			printf("GridBody::ButtonDown item position{%d,%d}\n", position.x, position.y);
 			if (position.x < m_nFixedCol && position.y < m_nFixedRow)
 			{
 				return true;

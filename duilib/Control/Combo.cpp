@@ -221,6 +221,9 @@ void Combo::SetAttribute(const std::wstring& strName, const std::wstring& strVal
 		rcTextPadding.bottom = _tcstol(pstr + 1, &pstr, 10); ASSERT(pstr);
 		SetTextPadding(rcTextPadding);
 	}
+	else if (strName == _T("normaltextcolor")) {
+		SetTextColor(strValue);
+	}
 	else Box::SetAttribute(strName, strValue);
 }
 
@@ -251,9 +254,12 @@ void Combo::PaintText(IRenderContext* pRender)
 			rcText.bottom -= rcPadding.bottom;
 
 			DWORD dwTextColor = 0xFF000000;
-			dwTextColor = GlobalManager::GetTextColor(pElement->GetStateTextColor(kControlStateNormal));
-			pRender->DrawText(rcText, GetText(), dwTextColor, \
-				pElement->GetFont(), DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
+			if (m_strTextColor.empty())
+				dwTextColor = GlobalManager::GetTextColor(pElement->GetStateTextColor(kControlStateNormal));
+			else
+				dwTextColor = GlobalManager::GetTextColor(m_strTextColor);
+
+			pRender->DrawText(rcText, GetText(), dwTextColor, pElement->GetFont(), DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
 		}
 		else {	
 			UiRect rcOldPos = pControl->GetPos();
@@ -271,6 +277,13 @@ std::wstring Combo::GetText() const
 	return pControl ? pControl->GetText() : _T("");
 }
 
+std::string Combo::GetUTF8Text() const
+{
+	if (m_iCurSel < 0) return "";
+	ListContainerElement* pControl = static_cast<ListContainerElement*>(m_pLayout->GetItemAt(m_iCurSel));
+	return pControl ? pControl->GetUTF8Text() : "";
+}
+
 UiRect Combo::GetTextPadding() const
 {
 	return m_rcTextPadding;
@@ -281,6 +294,16 @@ void Combo::SetTextPadding(UiRect rc)
 	DpiManager::GetInstance()->ScaleRect(rc);
 	m_rcTextPadding = rc;
 	this->Invalidate();
+}
+
+std::wstring Combo::GetTextColor() const
+{
+	return m_strTextColor;
+}
+
+void Combo::SetTextColor(const std::wstring& color)
+{
+	m_strTextColor = color;
 }
 
 std::wstring Combo::GetDropBoxAttributeList()

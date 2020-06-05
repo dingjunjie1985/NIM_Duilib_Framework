@@ -31,6 +31,12 @@ public:
     std::wstring GetText() const;
 
 	/**
+	* @brief 获取当前选择项UTF8文本
+	* @return 返回当前选择项UTF8文本
+	*/
+	std::string GetUTF8Text() const;
+
+	/**
 	* @brief 获取文字边距
 	* @return 返回文字的边距信息
 	*/
@@ -42,6 +48,19 @@ public:
 	* @return 无
 	*/
 	void SetTextPadding(UiRect rc);
+
+	/**
+	* @brief 返回文字颜色
+	* @return 返回文字颜色
+	*/
+	std::wstring GetTextColor() const;
+
+	/**
+	* @brief 设置文字颜色
+	* @param[in] color 文字颜色
+	* @return 无
+	*/
+	void SetTextColor(const std::wstring& color);
 
 	/**
 	 * @brief 获取当前所属的 List 对象
@@ -137,7 +156,8 @@ protected:
 	CSize m_szDropBox;
 	std::wstring m_sDropBoxAttributes;
 	bool m_bPopupTop;
-	UiRect	m_rcTextPadding;	//add by djj 20200426
+	UiRect	m_rcTextPadding;		//add by djj 20200426
+	std::wstring m_strTextColor;	//add by djj 20200604
 };
 
 } // namespace ui
