@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "GridBody.h"
 
+#define DRAG_HEADER_OFF_SIZE	6
+#define DRAG_ROW_OFF_SIZE		4
+
 namespace ui
 {
 	int GridBody::_SumIntList(const std::vector<int> &vec){
@@ -531,6 +534,11 @@ namespace ui
 			OnMouseDoubleClick(event);
 			bHandle = true;
 		}
+		else if (event.Type == kEventMouseMove)
+		{
+			OnMouseMove(event);
+			bHandle = true;
+		}
 		if (!bHandle)
 			__super::HandleMessage(event);
 	}
@@ -543,20 +551,104 @@ namespace ui
 		if (bFind)
 		{
 			printf("GridBody::ButtonDown item position{%d,%d}\n", position.x, position.y);
+
+			CSize szOff = m_pGrid->GetScrollPos();
+			int fixed_col_width = GetFixedColWidth();
+			CPoint pt = msg.ptMouse;
+			pt.Offset(-m_rcItem.left, -m_rcItem.top);
+			assert(pt.x > 0 && pt.y > 0);
+			if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
+				return true;
+		/*	UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
+			UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });*/
+			int posx = 0;
 			if (position.x < m_nFixedCol && position.y < m_nFixedRow)
 			{
+				if (position.y == 0)
+				{
+					for (size_t i = 0; i < m_nFixedCol; i++)
+					{
+						posx += m_hLayout[i];
+						if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
+						{
+							::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+							break;
+						}
+					}
+				}		
 				return true;
 			}
 			if (position.x < m_nFixedCol)			//点击fixed col	选择行
 			{
-				m_selRange.SetSelRow(position.y);	
+				if (position.x == 0)
+					m_selRange.SetSelRow(position.y);
 			}
 			else if (position.y < m_nFixedRow)		//点击fixed row 选择列
 			{
-				m_selRange.SetSelCol(position.x);
+				if (position.y == 0)
+				{
+					bool drag = false;
+					posx = fixed_col_width;
+					for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
+					{
+						posx += m_hLayout[i];
+						if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
+						{
+							::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+							drag = true;
+							break;
+						}
+					}
+					if (!drag)
+						m_selRange.SetSelCol(position.x);
+				}
 			}
 			else
 				m_selRange.SetSelItem(position.y, position.x);
+		}
+
+
+
+
+
+		else
+		{
+			CSize szOff = m_pGrid->GetScrollPos();
+			int fixed_col_width = GetFixedColWidth();
+
+			CPoint pt = msg.ptMouse;
+			pt.Offset(-m_rcItem.left, -m_rcItem.top);
+			assert(pt.x > 0 && pt.y > 0);
+			if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
+				return true;
+			UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
+			UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
+			int posx = 0;
+			if (rcFixedHeader.IsPointIn(pt))
+			{
+				for (size_t i = 0; i < m_nFixedCol; i++)
+				{
+					posx += m_hLayout[i];
+					if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
+					{
+						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						break;
+					}
+				}
+			}
+			else if (rcHeader.IsPointIn(pt))
+			{
+				posx = fixed_col_width;
+				for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
+				{
+					posx += m_hLayout[i];
+					if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
+					{
+						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						break;
+					}
+				}
+			}
 		}
 		return true;
 	}
@@ -575,7 +667,86 @@ namespace ui
 				_BeginEditGridItem(item);
 			}
 		}
+		else
+		{
+			CSize szOff = m_pGrid->GetScrollPos();
+			int fixed_col_width = GetFixedColWidth();
+
+			CPoint pt = msg.ptMouse;
+			pt.Offset(-m_rcItem.left, -m_rcItem.top);
+			assert(pt.x > 0 && pt.y > 0);
+			if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
+				return true;
+			UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
+			UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
+			int posx = 0;
+			if (rcFixedHeader.IsPointIn(pt))
+			{
+				for (size_t i = 0; i < m_nFixedCol; i++)
+				{
+					posx += m_hLayout[i];
+					if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
+					{
+						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						break;
+					}
+				}
+			}
+			else if (rcHeader.IsPointIn(pt))
+			{
+				posx = fixed_col_width;
+				for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
+				{
+					posx += m_hLayout[i];
+					if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
+					{
+						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						break;
+					}
+				}
+			}
+		}
 		return true;
+	}
+
+	bool GridBody::OnMouseMove(EventArgs& msg)
+	{
+		CSize szOff = m_pGrid->GetScrollPos();
+		int fixed_col_width = GetFixedColWidth();
+
+		CPoint pt = msg.ptMouse;
+		pt.Offset(-m_rcItem.left, -m_rcItem.top);
+		//assert(pt.x > 0 && pt.y > 0);
+		if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
+			return true;
+		UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
+		UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
+		int posx = 0;
+		if (rcFixedHeader.IsPointIn(pt))
+		{
+			for (size_t i = 0; i < m_nFixedCol; i++)
+			{
+				posx += m_hLayout[i];
+				if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
+				{
+					::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+					break;
+				}
+			}
+		}
+		else if (rcHeader.IsPointIn(pt))
+		{
+			posx = fixed_col_width;
+			for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
+			{
+				posx += m_hLayout[i];
+				if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
+				{
+					::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+					break;
+				}
+			}
+		}
 	}
 
 	bool GridBody::OnComboEditSelected(EventArgs *args)
@@ -665,7 +836,7 @@ namespace ui
 					rcPos.Offset(-szOff.cx, -szOff.cy);
 					if (rcPos.right > fixed_col_width || rcPos.bottom > fixed_row_height){
 						rcPos.Offset(rcPaint.left, rcPaint.top);
-						rcPos.Deflate({ 1, 1, 2, 2, });
+						rcPos.Deflate({ 1, 1, 2, 2});
 						pRender->DrawColor(rcPos, m_strSelForeColor, 255);
 					}	
 					posx += m_hLayout[l];

@@ -65,6 +65,7 @@ namespace ui
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;
 		virtual bool OnMouseDoubleClick(EventArgs& msg);		//no override
+		virtual bool OnMouseMove(EventArgs& msg);				//no override
 
 		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
 		virtual void PaintStatusColor(IRenderContext* pRender) override;

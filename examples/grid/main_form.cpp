@@ -80,6 +80,8 @@ void MainForm::InitWindow()
 		}
 	}
 
+	grid->SetRowCount(30);
+
 	/*for (size_t i = 0; i < 100; i++)
 	{
 		grid->AddRow();
