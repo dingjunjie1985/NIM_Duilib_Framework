@@ -61,6 +61,8 @@ namespace ui
 		void Clear(bool include_header);
 
 		void AttachTextChange(const EventCallback& callback)	{ this->OnEvent[kEventTextChange] += callback; }
+
+		bool LoadExcel(std::wstring file);
 	protected:
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "GridBody.h"
+#include "libxl.h"
 
 #define DRAG_HEADER_OFF_SIZE	6
 #define DRAG_ROW_OFF_SIZE		4
@@ -14,8 +15,11 @@ namespace ui
 	}
 	GridRow* GridBody::_GetHeader() const
 	{
+		GridRow *header = nullptr;
 		assert(m_vecRow.size() > 0);
-		return m_vecRow[0];
+		if (m_vecRow.size() > 0)
+			header = m_vecRow[0];
+		return header;
 	}
 	void GridBody::_BeginEditGridItem(GridItem *item)
 	{
@@ -521,6 +525,12 @@ namespace ui
 		}
 	}
 
+	bool GridBody::LoadExcel(std::wstring file)
+	{
+		libxl::IBookT<wchar_t>* book = xlCreateBookW();
+		return false;
+	}
+
 	void GridBody::HandleMessage(EventArgs& event)
 	{
 		if (!IsMouseEnabled() && event.Type > kEventMouseBegin && event.Type < kEventMouseEnd) {
@@ -606,11 +616,6 @@ namespace ui
 			else
 				m_selRange.SetSelItem(position.y, position.x);
 		}
-
-
-
-
-
 		else
 		{
 			CSize szOff = m_pGrid->GetScrollPos();

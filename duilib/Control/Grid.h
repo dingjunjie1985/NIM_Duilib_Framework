@@ -59,6 +59,8 @@ namespace ui
 		void Clear(bool include_header);
 
 		void AttachTextChange(const EventCallback& callback);
+
+		bool LoadExcel(std::wstring file);
 	protected:
 		
 

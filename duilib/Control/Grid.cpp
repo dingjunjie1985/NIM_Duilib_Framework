@@ -85,6 +85,7 @@ namespace ui
 	bool Grid::RemoveCol(int col){ return m_pBody->RemoveCol(col); }
 
 	void Grid::AttachTextChange(const EventCallback& callback){ return m_pBody->AttachTextChange(callback); }
+	bool Grid::LoadExcel(std::wstring file){ return m_pBody->LoadExcel(file); };
 
 	bool Grid::ButtonDown(EventArgs& msg)
 	{
