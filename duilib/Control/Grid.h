@@ -29,6 +29,9 @@ namespace ui
 		int GetFixedRowCount() const;
 		void SetFixedRowCount(int fixed);
 
+		int GetColumnWidth(int col_index) const;
+		void SetColumnWidth(int col_index, int width);
+
 		int GetHeaderHeight() const;
 		void SetHeaderHeight(int height);
 

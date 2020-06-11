@@ -2,6 +2,12 @@
 
 namespace ui
 {
+#define DRAG_HEADER_OFF_SIZE	6
+#define DRAG_ROW_OFF_SIZE		4
+
+#define MIN_COLUMN_WIDTH		DRAG_HEADER_OFF_SIZE
+#define MIN_ROW_HEIGHT			DRAG_ROW_OFF_SIZE
+
 
 	enum GridItemType
 	{

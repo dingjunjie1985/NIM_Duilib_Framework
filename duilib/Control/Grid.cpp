@@ -52,6 +52,9 @@ namespace ui
 	int Grid::GetFixedRowCount() const{ return m_pBody->GetFixedRowCount(); }
 	void Grid::SetFixedRowCount(int fixed){ return m_pBody->SetFixedRowCount(fixed); }
 
+	int Grid::GetColumnWidth(int col_index) const{ return m_pBody->GetColumnWidth(col_index); };
+	void Grid::SetColumnWidth(int col_index, int width){ m_pBody->SetColumnWidth(col_index, width); }
+
 	int Grid::GetHeaderHeight() const{ return m_pBody->GetHeaderHeight(); }
 	void Grid::SetHeaderHeight(int height){
 		m_pBody->SetHeaderHeight(height);

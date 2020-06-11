@@ -2,8 +2,7 @@
 #include "GridBody.h"
 #include "libxl.h"
 
-#define DRAG_HEADER_OFF_SIZE	6
-#define DRAG_ROW_OFF_SIZE		4
+
 
 namespace ui
 {
@@ -300,6 +299,27 @@ namespace ui
 		}
 	}
 
+	int GridBody::GetColumnWidth(int col_index) const
+	{
+		assert(col_index >= 0 && col_index < GetColCount());
+		if (col_index >= 0 && col_index < GetColCount())
+		{
+			return m_hLayout[col_index];
+		}
+	}
+	void GridBody::SetColumnWidth(int col_index, int width)
+	{
+		assert(col_index >= 0 && col_index < GetColCount());
+		if (col_index >= 0 && col_index < GetColCount())
+		{
+			if (m_hLayout[col_index] != width)
+			{
+				m_hLayout[col_index] = width;
+				SetFixedWidth(_SumIntList(m_hLayout));
+				Invalidate();
+			}
+		}
+	}
 
 	int GridBody::GetHeaderHeight() const
 	{
@@ -581,6 +601,11 @@ namespace ui
 						posx += m_hLayout[i];
 						if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
 						{
+							m_nDragColmun = i;
+							m_ptDragColumnStart = pt;
+							m_ptDragColumnMoving = pt;
+							m_nDrawDragColumnMovingOffX = posx - pt.x;
+							Invalidate();
 							::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
 							break;
 						}
@@ -604,6 +629,11 @@ namespace ui
 						posx += m_hLayout[i];
 						if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
 						{
+							m_nDragColmun = i;
+							m_ptDragColumnStart = pt;
+							m_ptDragColumnMoving = pt;
+							m_nDrawDragColumnMovingOffX = posx - pt.x;
+							Invalidate();
 							::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
 							drag = true;
 							break;
@@ -655,6 +685,25 @@ namespace ui
 				}
 			}
 		}
+		return true;
+	}
+
+	bool GridBody::ButtonUp(EventArgs& msg)
+	{
+		if (m_nDragColmun != -1)
+		{
+			assert(m_nDragColmun < GetColCount());
+			CPoint pt = msg.ptMouse;
+			pt.Offset(-m_rcItem.left, -m_rcItem.top);
+			int width = GetColumnWidth(m_nDragColmun) + pt.x - m_ptDragColumnStart.x;
+			if (width < MIN_COLUMN_WIDTH)
+				width = MIN_COLUMN_WIDTH;
+			
+			SetColumnWidth(m_nDragColmun, width);
+			m_nDragColmun = -1;
+			Invalidate();
+		}	
+
 		return true;
 	}
 
@@ -724,6 +773,12 @@ namespace ui
 		//assert(pt.x > 0 && pt.y > 0);
 		if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
 			return true;
+		if ((msg.wParam & MK_LBUTTON) > 0 && m_nDragColmun != -1)	//鼠标左键被按下 && 正在拖动
+		{
+			m_ptDragColumnMoving = pt;
+			Invalidate();
+			return true;
+		}
 		UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
 		UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
 		int posx = 0;
@@ -917,6 +972,24 @@ namespace ui
 						pRender->DrawLine(rcLineV, 1, dwGridLineColor);
 					}
 				}
+
+				//draw drag line
+				if (m_nDragColmun != -1)
+				{
+					assert(m_nDragColmun < GetColCount());
+					int left = 0;
+					for (size_t i = 0; i < m_nDragColmun; i++)
+					{
+						left += m_hLayout[i];
+					}
+					left += MIN_COLUMN_WIDTH ;
+					if (left < m_ptDragColumnMoving.x + m_nDrawDragColumnMovingOffX)
+						left = m_ptDragColumnMoving.x + m_nDrawDragColumnMovingOffX;
+					//printf("left %d\n", left);
+					UiRect rcLine = { left, 0, left, m_pGrid->GetHeight() };
+					DWORD dwColorLine = 0x8f888888;
+					pRender->DrawLine(rcLine, 2, dwColorLine);
+				}
 			}
 			
 			pRender->SetWindowOrg(ptOldOrg);
@@ -939,10 +1012,14 @@ namespace ui
 		//draw fixed col && fixed row text
 		for (int i = 0; i < m_nFixedRow; i++)
 		{
+			if (m_vLayout[i] == 0)
+				continue;
 			posx = 0;
 			GridRow *grid_row = m_vecRow[i];
 			for (size_t j = 0; j < m_nFixedCol; j++)
 			{
+				if (m_hLayout[j] == 0)
+					continue;
 				UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 				rc.Offset({ m_rcItem.left, m_rcItem.top });
 				pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
@@ -960,10 +1037,14 @@ namespace ui
 			posy = 0;
 			for (int i = 0; i < m_nFixedRow; i++)
 			{
+				if (m_vLayout[i] == 0)
+					continue;
 				GridRow *grid_row = m_vecRow[i];
 				posx = GetFixedColWidth();
 				for (size_t j = m_nFixedCol; j < col_count; j++)
 				{
+					if (m_hLayout[j] == 0)
+						continue;
 					std::wstring str = grid_row->at(j)->text;
 					if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
 					{
@@ -990,9 +1071,13 @@ namespace ui
 			posx = 0;
 			for (int i = 0; i < m_nFixedCol; i++)
 			{
+				if (m_hLayout[i] == 0)
+					continue;
 				posy = GetFixedRowHeight();
 				for (size_t j = m_nFixedRow; j < row_count; j++)
 				{
+					if (m_vLayout[j] == 0)
+						continue;
 					GridRow *grid_row = m_vecRow[j];
 					std::wstring str = grid_row->at(i)->text;
 					if (!str.empty() && posy + m_vLayout[j] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
@@ -1020,12 +1105,16 @@ namespace ui
 			posy = GetFixedRowHeight();
 			for (int i = m_nFixedRow; i < row_count; i++)
 			{
+				if (m_vLayout[i] == 0)
+					continue;
 				if (posy + m_vLayout[i] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
 				{
 					GridRow *grid_row = m_vecRow[i];
 					posx = GetFixedColWidth();
 					for (size_t j = m_nFixedCol; j < col_count; j++)
 					{
+						if (m_hLayout[j] == 0)
+							continue;
 						std::wstring str = grid_row->at(j)->text;
 						if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
 						{

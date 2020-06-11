@@ -31,6 +31,9 @@ namespace ui
 		int GetFixedRowCount() const;
 		void SetFixedRowCount(int fixed);
 
+		int GetColumnWidth(int col_index) const;
+		void SetColumnWidth(int col_index, int width);
+
 		int GetHeaderHeight() const;
 		void SetHeaderHeight(int height);
 
@@ -63,9 +66,11 @@ namespace ui
 		void AttachTextChange(const EventCallback& callback)	{ this->OnEvent[kEventTextChange] += callback; }
 
 		bool LoadExcel(std::wstring file);
+
 	protected:
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;
+		virtual bool ButtonUp(EventArgs& msg) override;
 		virtual bool OnMouseDoubleClick(EventArgs& msg);		//no override
 		virtual bool OnMouseMove(EventArgs& msg);				//no override
 
@@ -95,6 +100,13 @@ namespace ui
 		unsigned int m_nFixedRow = 0;
 
 		GridSelRange m_selRange;
+
+		//bool m_bDragColumn = false;
+		int m_nDragColmun = -1;
+		CPoint m_ptDragColumnStart;
+		int m_nDrawDragColumnMovingOffX = 0;			// = m_nDragColmun的右边界 -  m_ptDragColumnMoving.x; 为了保证拖动线的位置准确性
+		CPoint m_ptDragColumnMoving;
+
 
 		int m_defaultRowHeight = 24;
 		std::wstring m_strFixedBkColor = L"splitline_level2";
