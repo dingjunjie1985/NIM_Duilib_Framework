@@ -262,7 +262,7 @@ namespace ui
 		}
 		else if (count < GetRowCount())
 		{
-			for (size_t i = GetRowCount() - 1; i <= count; i--)
+			for (size_t i = GetRowCount() - 1; i >= count; i--)
 			{
 				RemoveRow(i);
 			}
@@ -444,13 +444,23 @@ namespace ui
 	bool GridBody::AddRow()
 	{
 		assert(m_hLayout.size() > 0);	//新增行前必须现有列
+		if (m_hLayout.size() == 0)
+			return false;
 		int row_index = m_vecRow.size();
+		int col_count = m_hLayout.size();
 		GridRow *row = new GridRow();
+		GridItem *item_arr = new GridItem[col_count];
 		wchar_t buf[16] = {};
-		for (size_t i = 0; i < m_hLayout.size(); i++)
+		for (size_t i = 0; i < col_count; i++)
 		{
 			GridItem *item = nullptr;
 #if 0
+			item = item_arr + i;
+			item->row_index = row_index;
+			item->col_index = i;
+			if (i == 0)
+				item->text = _itow(row_index, buf, 10);
+#elif 1
 			if (i == 0)
 				item = new GridItem(_itow(m_vecRow.size(), buf, 10), row_index, i);
 			else
@@ -465,7 +475,11 @@ namespace ui
 		m_vecRow.push_back(row);
 		m_vLayout.push_back(m_defaultRowHeight);
 		assert(m_vecRow.size() == m_vLayout.size());
-		SetFixedHeight(_SumIntList(m_vLayout));
+		int fixHeight = GetFixedHeight();
+		if (fixHeight >= 0)
+			SetFixedHeight(fixHeight + m_defaultRowHeight);
+		else
+			SetFixedHeight(_SumIntList(m_vLayout));
 
 		m_selRange.Clear();
 		Invalidate();
