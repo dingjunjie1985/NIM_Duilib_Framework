@@ -74,6 +74,10 @@
 #include <map>
 #include <queue>
 #include <functional>
+#include<thread>
+#ifdef _DEBUG
+#include <time.h>
+#endif
 
 #include "Utils/Macros.h"
 #include "Utils/Utils.h"

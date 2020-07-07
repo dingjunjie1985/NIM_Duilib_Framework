@@ -21,11 +21,11 @@ namespace ui
 	class GridItem
 	{
 	public:
+		std::wstring text;
 		int row_index;
 		int col_index;
+		
 		GridItemType type;
-
-		std::wstring text;
 		int iValue;
 		double dValue;
 		std::vector<std::wstring> combo_list;
@@ -36,6 +36,12 @@ namespace ui
 			
 		};
 		virtual ~GridItem(){};
+
+		void ClearAll()
+		{
+			text = L"";
+			_ClearType();
+		}
 
 		void InitTypeInt(int value){
 			_ClearType();

@@ -3,7 +3,6 @@
 #include "libxl.h"
 
 
-
 namespace ui
 {
 	int GridBody::_SumIntList(const std::vector<int> &vec){
@@ -251,22 +250,106 @@ namespace ui
 	}
 	void GridBody::SetRowCount(int count)
 	{
+#ifdef _DEBUG
+		clock_t t1 = clock();
+#endif
 		assert(m_vLayout.size() == m_vecRow.size());
-		if (count > GetRowCount())
+		assert(m_hLayout.size() > 0);
+		if (m_hLayout.size() == 0)
+			return;
+		int row_count = GetRowCount();
+		int col_count = GetColCount();
+		if (count > row_count)
 		{
-			int dis = count - GetRowCount();
-			for (size_t i = 0; i < dis; i++)
+			m_vecRow.reserve(count + 100);
+			int add_count = count - row_count;
+			int row_index = row_count;
+			for (; row_index < count; row_index++)
 			{
-				AddRow();
+				GridRow *row = new GridRow();
+				GridItem *item_arr = new GridItem[col_count];
+				wchar_t buf[16] = {};
+				GridItem *item = item_arr;
+				for (int col = 0; col < col_count; col++)
+				{
+					item->row_index = row_index;
+					item->col_index = col;
+					if (col == 0)
+						item->text = _itow(m_vecRow.size(), buf, 10);
+					item->CopyType(GetGridItem(0, col));
+
+					row->emplace_back(item);
+
+					item++;
+				}
+				m_vecRow.emplace_back(row);
+				m_vLayout.emplace_back(m_defaultRowHeight);
 			}
+			
+			assert(m_vecRow.size() == m_vLayout.size());
+			int fixHeight = GetFixedHeight();
+			if (fixHeight >= 0)
+				SetFixedHeight(fixHeight + m_defaultRowHeight * add_count);
+			else
+				SetFixedHeight(_SumIntList(m_vLayout));
+
+			m_selRange.Clear();
+			Invalidate();
 		}
-		else if (count < GetRowCount())
+		else if (count < row_count)
 		{
-			for (size_t i = GetRowCount() - 1; i >= count; i--)
+			_EndEdit();
+			m_selRange.Clear();
+			assert(m_vLayout.size() == m_vecRow.size());
+			int del_count = row_count - count;
+			int row_index = row_count - 1;
+			std::vector<GridRow*> delay_delete_rows;
+
+			if (count == 0)
 			{
-				RemoveRow(i);
+				delay_delete_rows.insert(delay_delete_rows.begin(), m_vecRow.begin() + 1, m_vecRow.end());
+				GridRow *grid_row = m_vecRow[0];
+				for (size_t i = 1; i < grid_row->size(); i++)
+				{
+					grid_row->at(i)->ClearAll();
+				}
 			}
+			else
+			{
+				delay_delete_rows.insert(delay_delete_rows.begin(), m_vecRow.begin() + count, m_vecRow.end());
+			}
+			//异步回收内存
+			std::thread thread_delete([delay_delete_rows](){
+				int row_count = delay_delete_rows.size();
+				int row_index = 0;
+				for (int row_index = 0; row_index < row_count; row_index++)
+				{
+					GridRow *grid_row = delay_delete_rows[row_index];
+					if (grid_row->size() > 0){
+						GridItem *item = (*grid_row)[0];
+						delete[] item;
+					}
+					delete grid_row;
+				}
+			});
+			thread_delete.detach();
+
+			//第一行是header, 不允许清除
+			if (count == 0)
+				count = 1;
+
+			if (m_nFixedRow > count)
+				m_nFixedRow = count;
+
+			m_vecRow.erase(m_vecRow.begin() + count, m_vecRow.end());
+			m_vLayout.erase(m_vLayout.begin() + count, m_vLayout.end());
+
+			SetFixedHeight(_SumIntList(m_vLayout));
+			Invalidate();
 		}
+#ifdef _DEBUG
+		printf("GridBody::SetRowCount %dms\n", clock() - t1);
+#endif
 	}
 
 	int GridBody::GetFixedColCount() const
