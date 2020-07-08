@@ -213,7 +213,7 @@ namespace ui
 		m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
 		m_vecRow.push_back(new GridRow());
 		SetFixedHeight(m_defaultRowHeight);
-		AddHeaderItem(L"行号", 30);
+		AddCol(L"行号", 30);
 		SetFixedColCount(1);
 		SetFixedRowCount(1);
 
@@ -240,7 +240,74 @@ namespace ui
 	}
 	void GridBody::SetColCount(int count)
 	{
+#ifdef _DEBUG
+		clock_t t1 = clock();
+#endif
+		assert(m_vecRow.size() > 0 && _GetHeader()->size() == m_hLayout.size());
+		assert(m_vLayout.size() > 0);
+		if (m_vLayout.size() == 0)
+			return;
+		int col_count = GetColCount();
+		int row_count = GetRowCount();
+		if (count > col_count)
+		{
+			int add_count = count - col_count;
+			int col_index = col_count;
+			for (; col_index < count; col_index++)
+			{
+				GridItem *item = new GridHeaderItem(L"", 0, col_index);
+				_GetHeader()->push_back(item);
+				m_hLayout.push_back(m_defaultColWidth);
+				for (size_t i = 1; i < row_count; i++)
+				{
+					m_vecRow[i]->push_back(new GridItem(L"", i, col_index));
+				}
+			}
 
+			SetFixedWidth(_SumIntList(m_hLayout));
+			Invalidate();
+		}
+		else if (count < col_count)
+		{
+			_EndEdit();
+			m_selRange.Clear();
+
+			int del_count = col_count - count;
+			std::vector<GridItem*> delay_delete_items;
+			for (size_t i = 0; i < row_count; i++)
+			{
+				int row_index = col_count - 1;
+				delay_delete_items.insert(delay_delete_items.end(), m_vecRow[i]->items.begin() + count, m_vecRow[i]->items.end());
+
+				m_vecRow[i]->items.erase(m_vecRow[i]->items.begin() + count, m_vecRow[i]->items.end());
+			}
+			
+
+			//异步回收内存
+			std::thread thread_delete([delay_delete_items](){
+				int index = 0;
+				for (auto it = delay_delete_items.cbegin(); it < delay_delete_items.cend(); it++, index++)
+				{
+					if (index % 1000 == 0)	//防止cpu卡死
+						::Sleep(1);
+					delete *it;
+				}
+			});
+			thread_delete.detach();
+
+
+			if (m_nFixedCol > count)
+				m_nFixedCol = count;
+
+			m_hLayout.erase(m_hLayout.begin() + count, m_hLayout.end());
+
+			SetFixedWidth(_SumIntList(m_hLayout));
+			Invalidate();
+		}
+
+#ifdef _DEBUG
+		printf("GridBody::SetColCount %dms\n", clock() - t1);
+#endif
 	}
 
 	int GridBody::GetRowCount() const
@@ -267,18 +334,19 @@ namespace ui
 			for (; row_index < count; row_index++)
 			{
 				GridRow *row = new GridRow();
-				GridItem *item_arr = new GridItem[col_count];
+				//GridItem *item_arr = new GridItem[col_count];
+				//GridItem *item = item_arr;
 				wchar_t buf[16] = {};
-				GridItem *item = item_arr;
 				for (int col = 0; col < col_count; col++)
 				{
+					GridItem *item = new GridItem;
 					item->row_index = row_index;
 					item->col_index = col;
 					if (col == 0)
 						item->text = _itow(m_vecRow.size(), buf, 10);
 					item->CopyType(GetGridItem(0, col));
 
-					row->emplace_back(item);
+					row->push_back(item);
 
 					item++;
 				}
@@ -287,11 +355,7 @@ namespace ui
 			}
 			
 			assert(m_vecRow.size() == m_vLayout.size());
-			int fixHeight = GetFixedHeight();
-			if (fixHeight >= 0)
-				SetFixedHeight(fixHeight + m_defaultRowHeight * add_count);
-			else
-				SetFixedHeight(_SumIntList(m_vLayout));
+			SetFixedHeight(_SumIntList(m_vLayout));
 
 			m_selRange.Clear();
 			Invalidate();
@@ -301,42 +365,31 @@ namespace ui
 			_EndEdit();
 			m_selRange.Clear();
 			assert(m_vLayout.size() == m_vecRow.size());
+			if (count < 1)		//header必须保留
+				count = 1;
 			int del_count = row_count - count;
 			int row_index = row_count - 1;
 			std::vector<GridRow*> delay_delete_rows;
-
-			if (count == 0)
-			{
-				delay_delete_rows.insert(delay_delete_rows.begin(), m_vecRow.begin() + 1, m_vecRow.end());
-				GridRow *grid_row = m_vecRow[0];
-				for (size_t i = 1; i < grid_row->size(); i++)
-				{
-					grid_row->at(i)->ClearAll();
-				}
-			}
-			else
-			{
-				delay_delete_rows.insert(delay_delete_rows.begin(), m_vecRow.begin() + count, m_vecRow.end());
-			}
+			delay_delete_rows.insert(delay_delete_rows.begin(), m_vecRow.begin() + count, m_vecRow.end());
+			
 			//异步回收内存
 			std::thread thread_delete([delay_delete_rows](){
 				int row_count = delay_delete_rows.size();
 				int row_index = 0;
 				for (int row_index = 0; row_index < row_count; row_index++)
 				{
+					if (row_index % 100 == 0)		//防止cpu卡死
+						::Sleep(1);
 					GridRow *grid_row = delay_delete_rows[row_index];
-					if (grid_row->size() > 0){
-						GridItem *item = (*grid_row)[0];
-						delete[] item;
+					for (size_t i = 0; i < grid_row->size(); i++)
+					{
+						delete (*grid_row)[i];
 					}
 					delete grid_row;
 				}
 			});
 			thread_delete.detach();
 
-			//第一行是header, 不允许清除
-			if (count == 0)
-				count = 1;
 
 			if (m_nFixedRow > count)
 				m_nFixedRow = count;
@@ -506,11 +559,11 @@ namespace ui
 		return ret;
 	}
 
-	GridItem* GridBody::AddHeaderItem(std::wstring text, int width)
+	GridItem* GridBody::AddCol(std::wstring text, int width)
 	{
 		assert(m_vecRow.size() > 0 && _GetHeader()->size() == m_hLayout.size());
 		int col_index = _GetHeader()->size();
-		GridItem *item = new GridItem(text, 0, col_index);
+		GridItem *item = new GridHeaderItem(text, 0, col_index);
 		_GetHeader()->push_back(item);
 		m_hLayout.push_back(width);
 		SetFixedWidth(_SumIntList(m_hLayout));
@@ -519,7 +572,7 @@ namespace ui
 			m_vecRow[i]->push_back(new GridItem(L"", i, col_index));
 		}
 
-		m_selRange.Clear();
+		/*m_selRange.Clear();*/
 		Invalidate();
 		return item;
 	}
@@ -532,25 +585,16 @@ namespace ui
 		int row_index = m_vecRow.size();
 		int col_count = m_hLayout.size();
 		GridRow *row = new GridRow();
-		GridItem *item_arr = new GridItem[col_count];
 		wchar_t buf[16] = {};
 		for (size_t i = 0; i < col_count; i++)
 		{
-			GridItem *item = nullptr;
-#if 0
-			item = item_arr + i;
-			item->row_index = row_index;
-			item->col_index = i;
-			if (i == 0)
-				item->text = _itow(row_index, buf, 10);
-#elif 1
+			GridItem *item = new GridItem;
+
 			if (i == 0)
 				item = new GridItem(_itow(m_vecRow.size(), buf, 10), row_index, i);
 			else
 				item = new GridItem(L"", row_index, i);
-#else
-			item = new GridItem(_itow(m_vecRow.size(), buf, 10), row_index, i);
-#endif
+
 			row->push_back(item);
 			item->CopyType(GetGridItem(0, i));
 		}
@@ -564,7 +608,7 @@ namespace ui
 		else
 			SetFixedHeight(_SumIntList(m_vLayout));
 
-		m_selRange.Clear();
+		/*m_selRange.Clear();*/
 		Invalidate();
 		return true;
 	}
@@ -584,7 +628,9 @@ namespace ui
 	{
 		bool ret = false;
 		_EndEdit();
+		m_selRange.Clear();
 		assert(m_vLayout.size() == m_vecRow.size());
+		row--;
 		if (row > 0 && row < m_vecRow.size())
 		{
 			GridRow *grid_row = m_vecRow[row];
@@ -594,6 +640,7 @@ namespace ui
 			}
 			delete grid_row;
 			m_vecRow.erase(m_vecRow.begin() + row);
+#if 1
 			//下面行的GridItem的row_index--
 			for (size_t i = row; i < m_vecRow.size(); i++)
 			{
@@ -602,15 +649,18 @@ namespace ui
 				for (size_t j = 0; j < row->size(); j++)
 				{
 					row->at(j)->row_index = i;
+					if (j == 0)
+					{
+						wchar_t buf[16] = {};
+						row->at(j)->text = _itow(i, buf, 10);
+					}
 				}
 			}
-
+#endif
 			m_vLayout.erase(m_vLayout.begin() + row);
 
-			if (m_nFixedRow >= row + 1)
-			{
+			if (m_nFixedRow > row)
 				m_nFixedRow--;
-			}
 
 			SetFixedHeight(_SumIntList(m_vLayout));
 			Invalidate();
@@ -623,6 +673,51 @@ namespace ui
 	bool GridBody::RemoveCol(int col)
 	{
 		bool ret = false;
+		_EndEdit();
+		m_selRange.Clear();
+		assert(m_hLayout.size() == _GetHeader()->size());
+		col--;
+		if (col > 0 && col < _GetHeader()->size())
+		{
+			std::vector<GridItem*> delay_delete_items;
+			for (auto it = m_vecRow.begin(); it != m_vecRow.end(); it++)
+			{
+				GridRow *pRow = *it;
+				pRow->items.erase(pRow->items.begin() + col);
+			}
+			m_hLayout.erase(m_hLayout.begin() + col);
+
+			//异步回收内存
+			std::thread thread_delete([delay_delete_items](){
+				int index = 0;
+				for (auto it = delay_delete_items.cbegin(); it < delay_delete_items.cend(); it++, index++)
+				{
+					if (index % 1000 == 0)	//防止cpu卡死
+						::Sleep(1);
+					delete *it;
+				}
+			});
+			thread_delete.detach();
+#if 1
+			//右边列的GridItem的col_index--
+			for (size_t i = 0; i < m_vecRow.size(); i++)
+			{
+				GridRow *row = m_vecRow[i];
+				assert(row->at(0)->row_index == i);
+				for (size_t j = col; j < row->size(); j++)
+				{
+					row->at(j)->col_index--;
+				}
+			}
+#endif
+			if (m_nFixedCol > col)
+				m_nFixedCol--;
+
+			SetFixedWidth(_SumIntList(m_hLayout));
+			Invalidate();
+			ret = true;
+		}
+
 		return ret;
 	}
 

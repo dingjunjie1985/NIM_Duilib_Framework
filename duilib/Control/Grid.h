@@ -52,7 +52,7 @@ namespace ui
 
 		bool IsGridItemFixed(int row, int col);
 
-		GridItem* AddHeaderItem(std::wstring text, int width = 80);
+		GridItem* AddCol(std::wstring text, int width = 80);
 		bool AddRow();
 
 		GridItem *GetGridItem(int row, int col);

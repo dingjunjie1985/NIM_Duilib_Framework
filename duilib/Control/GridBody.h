@@ -3,9 +3,6 @@
 
 namespace ui
 {
-	typedef std::vector<GridItem*> GridRow; 
-	typedef std::vector<int> GridLayout;
-
 	class Grid;
 	class GridBody : public Box
 	{
@@ -16,6 +13,7 @@ namespace ui
 		virtual ~GridBody(){};
 
 		void SetDefaultRowHeight(int height){ m_defaultRowHeight = height; };
+		void SetDefaultColWidth(int width){ m_defaultColWidth = width; };
 		int GetTotalRowHeight(){}
 
 	protected:	//pass by grid
@@ -54,7 +52,7 @@ namespace ui
 
 		bool IsGridItemFixed(int row, int col);
 
-		GridItem* AddHeaderItem(std::wstring text, int width = 80);
+		GridItem* AddCol(std::wstring text, int width = 80);
 		bool AddRow();
 
 		GridItem *GetGridItem(int row, int col);
@@ -109,6 +107,7 @@ namespace ui
 
 
 		int m_defaultRowHeight = 24;
+		int m_defaultColWidth = 80;
 		std::wstring m_strFixedBkColor = L"splitline_level2";
 		std::wstring m_strSelForeColor = L"grid_sel_fore";
 		std::wstring m_strGridLineColor = L"grid_line";

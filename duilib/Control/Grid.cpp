@@ -78,7 +78,7 @@ namespace ui
 	int Grid::GetFixedColWidth() const{ return m_pBody->GetFixedColWidth(); }
 	int Grid::GetFixedRowHeight() const{ return m_pBody->GetFixedRowHeight(); }
 	
-	GridItem* Grid::AddHeaderItem(std::wstring text, int width){ return m_pBody->AddHeaderItem(text, width); }
+	GridItem* Grid::AddCol(std::wstring text, int width){ return m_pBody->AddCol(text, width); }
 	bool Grid::AddRow(){ return m_pBody->AddRow(); }
 
 	GridItem *Grid::GetGridItem(int row, int col){ return m_pBody->GetGridItem(row, col); }

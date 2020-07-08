@@ -37,6 +37,8 @@ namespace ui
 		};
 		virtual ~GridItem(){};
 
+		//virtual bool IsValid(){ return true; }
+
 		void ClearAll()
 		{
 			text = L"";
@@ -89,6 +91,21 @@ namespace ui
 		}
 	};
 
+	class GridHeaderItem :public GridItem{
+	public:
+		GridHeaderItem(std::wstring txt = L"", int row = -1, int col = -1, GridItemType item_type = GIT_String) : GridItem(txt, row, col){
+		};
+		virtual ~GridHeaderItem(){};
+		//virtual bool IsValid() override { return type == GIT_String && text.empty() && iValue == 0 && dValue == 0.0 && combo_list.empty() && date.empty(); }
+	};
+
+	/*class GridRowHeaderItem :public GridItem{
+	public:
+		GridRowHeaderItem(std::wstring txt = L"", int row = -1, int col = -1, GridItemType item_type = GIT_String) : GridItem(txt, row, col){
+		};
+		virtual ~GridRowHeaderItem(){};
+	};*/
+
 	class GridSelRange{
 		friend class GridBody;
 	public:
@@ -104,5 +121,33 @@ namespace ui
 		std::vector<UiRect> m_vecRange;			//用UiRect代表一块选中的区域的四个角
 	};
 
-	
+	//typedef std::vector<GridItem*> GridRow;
+	typedef std::vector<int> GridLayout;
+
+	class GridRow
+	{
+	public:
+		std::vector<GridItem*> items;
+
+		GridRow(){};
+		~GridRow(){};
+
+		GridItem* operator[](int index){
+			assert(index >= 0 && index < items.size());
+			return items[index];
+		};
+
+		GridItem* at(int index){
+			assert(index >= 0 && index < items.size());
+			return items[index];
+		};
+
+		void push_back(GridItem* item){
+			items.push_back(item);
+		}
+
+		size_t size(){
+			return items.size();
+		}
+	};
 }

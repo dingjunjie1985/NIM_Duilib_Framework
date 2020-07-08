@@ -65,7 +65,7 @@ void MainForm::InitWindow()
 
 	for (int i = 0; i < sizeof(header) / sizeof(header[0]); i++)
 	{
-		GridItem *header_item = grid->AddHeaderItem(header[i]);
+		GridItem *header_item = grid->AddCol(header[i]);
 		if (i == 2)
 		{
 			header_item->InitTypeCombo(vecTypeString);
@@ -96,7 +96,7 @@ void MainForm::InitWindow()
 	re_fixed_row->SetText(nbase::IntToString16(grid->GetFixedRowCount()));
 	re_fixed_col->SetText(nbase::IntToString16(grid->GetFixedColCount()));
 	
-	re_row->AttachBubbledEvent(kEventKillFocus, [this, grid, re_row](ui::EventArgs* args){
+	re_row->AttachBubbledEvent(kEventReturn, [this, grid, re_row](ui::EventArgs* args){
 		std::wstring text = re_row->GetText();
 		if (!text.empty())
 		{
@@ -109,7 +109,7 @@ void MainForm::InitWindow()
 		return true;
 	});
 
-	re_col->AttachBubbledEvent(kEventKillFocus, [this, grid, re_col](ui::EventArgs* args){
+	re_col->AttachBubbledEvent(kEventReturn, [this, grid, re_col](ui::EventArgs* args){
 		std::wstring text = re_col->GetText();
 		if (!text.empty())
 		{
@@ -122,7 +122,7 @@ void MainForm::InitWindow()
 		return true;
 	});
 	
-	re_fixed_row->AttachBubbledEvent(kEventKillFocus, [this, grid, re_fixed_row](ui::EventArgs* args){
+	re_fixed_row->AttachBubbledEvent(kEventReturn, [this, grid, re_fixed_row](ui::EventArgs* args){
 		std::wstring text = re_fixed_row->GetText();
 		if (!text.empty())
 		{
@@ -135,7 +135,7 @@ void MainForm::InitWindow()
 		return true;
 	});
 
-	re_fixed_col->AttachBubbledEvent(kEventKillFocus, [this, grid, re_fixed_col](ui::EventArgs* args){
+	re_fixed_col->AttachBubbledEvent(kEventReturn, [this, grid, re_fixed_col](ui::EventArgs* args){
 		std::wstring text = re_fixed_col->GetText();
 		if (!text.empty())
 		{
@@ -148,53 +148,29 @@ void MainForm::InitWindow()
 		return true;
 	});
 
-	tree_ = static_cast<TreeView*>(FindControl(L"tree"));
-#if 0
-	ui::TreeNode* parent_node = nullptr;
-	for (size_t i = 0; i < 30; i++)
-	{
-		ui::TreeNode* parent_node = new ui::TreeNode;
-		parent_node->SetClass(L"listitem");
-		parent_node->SetFixedHeight(20);
-		parent_node->SetText(nbase::StringPrintf(L"Parent node %d", i));
-		tree_->GetRootNode()->AddChildNode(parent_node);
-		for (size_t j = 0; j < 50; j++)
-		{
-			ui::TreeNode* child_node = new ui::TreeNode;
-			child_node->SetClass(L"listitem");
-			child_node->SetFixedHeight(20);
-			child_node->SetText(nbase::StringPrintf(L"Child node %d", j));
-			parent_node->AddChildNode(child_node);
+	Button *btn_add_row = static_cast<Button*>(FindControl(L"btn_add_row"));
+	Button *btn_remove_row = static_cast<Button*>(FindControl(L"btn_remove_row"));
+	Button *btn_add_col = static_cast<Button*>(FindControl(L"btn_add_col"));
+	Button *btn_remove_col = static_cast<Button*>(FindControl(L"btn_remove_col"));
+	btn_add_row->AttachClick([this, grid](ui::EventArgs* args){
+		grid->AddRow();
+		return true;
+	});
 
-			for (size_t k = 0; k < 20; k++)
-			{
-				ui::TreeNode* leaf_node = new ui::TreeNode;
-				leaf_node->SetClass(L"listitem");
-				leaf_node->SetFixedHeight(20);
-				leaf_node->SetText(nbase::StringPrintf(L"Leaf node %d", k));
-				child_node->AddChildNode(leaf_node);
-			}
-		}
-	}
-#endif
-#if 0
-	ListBox *list = static_cast<ListBox*>(FindControl(L"list"));
-	for (size_t i = 0; i < 30000; i++)
-	{
-		ui::ListContainerElement* item = new ui::ListContainerElement;
-		item->SetClass(L"listitem");
-		item->SetFixedHeight(20);
-		item->SetText(nbase::StringPrintf(L"Leaf node %d", i));
-		list->Add(item);
-	}
-#endif
-	//Label *tooltip = (Label*)FindControl(L"tooltip");
-	//Button *btn = (Button*)FindControl(L"btn");
-	//btn->AttachClick([this, tooltip](ui::EventArgs *args){
-	//	std::wstring str = tooltip->GetText();
-	//	tooltip->SetText(str + L"A");
-	//	return true;
-	//});
+	btn_remove_row->AttachClick([this, grid](ui::EventArgs* args){
+		grid->RemoveRow(2);
+		return true;
+	});
+	btn_add_col->AttachClick([this, grid](ui::EventArgs* args){
+		grid->AddCol(L"111");
+		return true;
+	});
+	btn_remove_col->AttachClick([this, grid](ui::EventArgs* args){
+		grid->RemoveCol(2);
+		return true;
+	});
+
+	//tree_ = static_cast<TreeView*>(FindControl(L"tree"));
 }
 
 LRESULT MainForm::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
