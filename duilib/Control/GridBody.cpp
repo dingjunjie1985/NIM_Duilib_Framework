@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "GridBody.h"
 #include "libxl.h"
+#include <sstream>
 
 
 namespace ui
@@ -209,6 +210,12 @@ namespace ui
 		return UiRect(posx, posy, posx + m_hLayout[col_index], posy + m_vLayout[row_index]);
 	}
 
+	void GridBody::_ClearModifyAndSel()
+	{
+		_EndEdit();
+		m_selRange.Clear();
+	}
+
 	GridBody::GridBody(Grid *pGrid) : m_selRange(this), m_pGrid(pGrid){
 		m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
 		m_vecRow.push_back(new GridRow());
@@ -269,8 +276,7 @@ namespace ui
 		}
 		else if (count < col_count)
 		{
-			_EndEdit();
-			m_selRange.Clear();
+			_ClearModifyAndSel();
 
 			int del_count = col_count - count;
 			std::vector<GridItem*> delay_delete_items;
@@ -333,7 +339,7 @@ namespace ui
 			int row_index = row_count;
 			for (; row_index < count; row_index++)
 			{
-				GridRow *row = new GridRow();
+				GridRow *pRow = new GridRow();
 				//GridItem *item_arr = new GridItem[col_count];
 				//GridItem *item = item_arr;
 				wchar_t buf[16] = {};
@@ -346,11 +352,11 @@ namespace ui
 						item->text = _itow(m_vecRow.size(), buf, 10);
 					item->CopyType(GetGridItem(0, col));
 
-					row->push_back(item);
+					pRow->push_back(item);
 
 					item++;
 				}
-				m_vecRow.emplace_back(row);
+				m_vecRow.emplace_back(pRow);
 				m_vLayout.emplace_back(m_defaultRowHeight);
 			}
 			
@@ -362,8 +368,7 @@ namespace ui
 		}
 		else if (count < row_count)
 		{
-			_EndEdit();
-			m_selRange.Clear();
+			_ClearModifyAndSel();
 			assert(m_vLayout.size() == m_vecRow.size());
 			if (count < 1)		//header必须保留
 				count = 1;
@@ -527,10 +532,10 @@ namespace ui
 		return fixed_height;
 	}
 
-	std::wstring GridBody::GetGridItemText(int row, int col)
+	std::wstring GridBody::GetGridItemText(int row_index, int col_index)
 	{
 		std::wstring str;
-		GridItem *item = GetGridItem(row, col);
+		GridItem *item = GetGridItem(row_index, col_index);
 		assert(item);
 		if (item)
 		{
@@ -538,10 +543,10 @@ namespace ui
 		}
 		return str;
 	}
-	bool GridBody::SetGridItemText(std::wstring text, int row, int col)
+	bool GridBody::SetGridItemText(std::wstring text, int row_index, int col_index)
 	{
 		bool ret = false;
-		GridItem *item = GetGridItem(row, col);
+		GridItem *item = GetGridItem(row_index, col_index);
 		assert(item);
 		if (item)
 		{
@@ -551,10 +556,10 @@ namespace ui
 		return ret;
 	}
 
-	bool GridBody::IsGridItemFixed(int row, int col)
+	bool GridBody::IsGridItemFixed(int row_index, int col_index)
 	{
 		bool ret = false;
-		if (row < m_nFixedRow || col < m_nFixedCol)
+		if (row_index < m_nFixedRow || col_index < m_nFixedCol)
 			ret = true;
 		return ret;
 	}
@@ -584,7 +589,7 @@ namespace ui
 			return false;
 		int row_index = m_vecRow.size();
 		int col_count = m_hLayout.size();
-		GridRow *row = new GridRow();
+		GridRow *pRow = new GridRow();
 		wchar_t buf[16] = {};
 		for (size_t i = 0; i < col_count; i++)
 		{
@@ -595,11 +600,11 @@ namespace ui
 			else
 				item = new GridItem(L"", row_index, i);
 
-			row->push_back(item);
+			pRow->push_back(item);
 			item->CopyType(GetGridItem(0, i));
 		}
 
-		m_vecRow.push_back(row);
+		m_vecRow.push_back(pRow);
 		m_vLayout.push_back(m_defaultRowHeight);
 		assert(m_vecRow.size() == m_vLayout.size());
 		int fixHeight = GetFixedHeight();
@@ -613,53 +618,52 @@ namespace ui
 		return true;
 	}
 
-	GridItem *GridBody::GetGridItem(int row, int col)
+	GridItem *GridBody::GetGridItem(int row_index, int col_index)
 	{
 		assert(_GetHeader()->size() == m_hLayout.size() && m_vecRow.size() == m_vLayout.size());
 		GridItem *item = nullptr;
-		if (row >= 0 && row < m_vecRow.size() && col >= 0 && col < m_vecRow[row]->size())
+		if (row_index >= 0 && row_index < m_vecRow.size() && col_index >= 0 && col_index < m_vecRow[row_index]->size())
 		{
-			item = m_vecRow[row]->at(col);
+			item = m_vecRow[row_index]->at(col_index);
 		}
 		return item;
 	}
 
-	bool GridBody::RemoveRow(int row)
+	bool GridBody::RemoveRow(int row_index)
 	{
 		bool ret = false;
-		_EndEdit();
-		m_selRange.Clear();
+		_ClearModifyAndSel();
 		assert(m_vLayout.size() == m_vecRow.size());
-		row--;
-		if (row > 0 && row < m_vecRow.size())
+		row_index--;
+		if (row_index > 0 && row_index < m_vecRow.size())
 		{
-			GridRow *grid_row = m_vecRow[row];
+			GridRow *grid_row = m_vecRow[row_index];
 			for (size_t i = 0; i < grid_row->size(); i++)
 			{
 				delete grid_row->at(i);
 			}
 			delete grid_row;
-			m_vecRow.erase(m_vecRow.begin() + row);
+			m_vecRow.erase(m_vecRow.begin() + row_index);
 #if 1
 			//下面行的GridItem的row_index--
-			for (size_t i = row; i < m_vecRow.size(); i++)
+			for (size_t i = row_index; i < m_vecRow.size(); i++)
 			{
-				GridRow *row = m_vecRow[i];
-				assert(row->at(0)->row_index - 1 == i);
-				for (size_t j = 0; j < row->size(); j++)
+				GridRow *pRow = m_vecRow[i];
+				assert(pRow->at(0)->row_index - 1 == i);
+				for (size_t j = 0; j < pRow->size(); j++)
 				{
-					row->at(j)->row_index = i;
+					pRow->at(j)->row_index = i;
 					if (j == 0)
 					{
 						wchar_t buf[16] = {};
-						row->at(j)->text = _itow(i, buf, 10);
+						pRow->at(j)->text = _itow(i, buf, 10);
 					}
 				}
 			}
 #endif
-			m_vLayout.erase(m_vLayout.begin() + row);
+			m_vLayout.erase(m_vLayout.begin() + row_index);
 
-			if (m_nFixedRow > row)
+			if (m_nFixedRow > row_index)
 				m_nFixedRow--;
 
 			SetFixedHeight(_SumIntList(m_vLayout));
@@ -670,22 +674,21 @@ namespace ui
 		return ret;
 	}
 
-	bool GridBody::RemoveCol(int col)
+	bool GridBody::RemoveCol(int col_index)
 	{
 		bool ret = false;
-		_EndEdit();
-		m_selRange.Clear();
+		_ClearModifyAndSel();
 		assert(m_hLayout.size() == _GetHeader()->size());
-		col--;
-		if (col > 0 && col < _GetHeader()->size())
+		col_index--;
+		if (col_index > 0 && col_index < _GetHeader()->size())
 		{
 			std::vector<GridItem*> delay_delete_items;
 			for (auto it = m_vecRow.begin(); it != m_vecRow.end(); it++)
 			{
 				GridRow *pRow = *it;
-				pRow->items.erase(pRow->items.begin() + col);
+				pRow->items.erase(pRow->items.begin() + col_index);
 			}
-			m_hLayout.erase(m_hLayout.begin() + col);
+			m_hLayout.erase(m_hLayout.begin() + col_index);
 
 			//异步回收内存
 			std::thread thread_delete([delay_delete_items](){
@@ -702,15 +705,15 @@ namespace ui
 			//右边列的GridItem的col_index--
 			for (size_t i = 0; i < m_vecRow.size(); i++)
 			{
-				GridRow *row = m_vecRow[i];
-				assert(row->at(0)->row_index == i);
-				for (size_t j = col; j < row->size(); j++)
+				GridRow *pRow = m_vecRow[i];
+				assert(pRow->at(0)->row_index == i);
+				for (size_t j = col_index; j < pRow->size(); j++)
 				{
-					row->at(j)->col_index--;
+					pRow->at(j)->col_index--;
 				}
 			}
 #endif
-			if (m_nFixedCol > col)
+			if (m_nFixedCol > col_index)
 				m_nFixedCol--;
 
 			SetFixedWidth(_SumIntList(m_hLayout));
@@ -723,24 +726,193 @@ namespace ui
 
 	void GridBody::Clear(bool include_header)
 	{
-		_EndEdit();
+		_ClearModifyAndSel();
 		assert(m_vLayout.size() == m_vecRow.size());
 
-		for (size_t i = m_vecRow.size() - 1; i > 0; i--)
-		{
-			RemoveRow(i);
-		}
+		SetRowCount(1);
 
 		if (include_header)		//移除header
 		{
-
+			SetColCount(1);
 		}
 	}
 
-	bool GridBody::LoadExcel(std::wstring file)
+	bool GridBody::LoadExcel(std::wstring file, int sheet_num, bool touch_header)
 	{
-		libxl::IBookT<wchar_t>* book = xlCreateBookW();
-		return false;
+		auto dealNumberD2 = [](double d) -> std::wstring {
+			std::wostringstream out;
+			out.precision(std::numeric_limits<double>::digits10);
+			out << d;
+			return out.str();
+		};
+
+		bool ret = false;
+		libxl::Book* book = NULL;
+		if (file.find(L"xlsx") != std::wstring::npos){
+			book = xlCreateXMLBook();
+		}
+		else if (file.find(L"xls") != std::wstring::npos){
+			book = xlCreateBook();
+		}
+		if (book)
+		{
+			if (book->load(file.c_str()))
+			{
+				int sheet_count = book->sheetCount();
+				printf("sheetCount %d\n", sheet_count);
+
+				for (int s = 0; s < sheet_count; s++)
+				{
+					if (s != sheet_num)
+						continue;
+					std::wstring sheet_name = book->getSheet(s)->name();
+
+					int date_costom_format = -1;
+
+					libxl::Sheet* pSheet = book->getSheet(s);
+					if (pSheet)
+					{
+						int row_num = pSheet->lastRow();
+						int col_num = pSheet->lastCol();
+						int additional_header_row = (touch_header ? 0 : 1);	//计算额外的一行
+						if (GetRowCount() < row_num + additional_header_row)
+							SetRowCount(row_num + additional_header_row);
+						if (GetColCount() < col_num + 1)
+							SetColCount(col_num + 1);
+
+						for (int row = 0; row < row_num; ++row)
+						{
+							for (int col = 0; col < col_num; ++col)
+							{
+								std::wstring str;
+								libxl::CellType t = pSheet->cellType(row, col);
+								if (t == libxl::CellType::CELLTYPE_EMPTY || t == libxl::CellType::CELLTYPE_BLANK){
+								}
+								else if (t == libxl::CellType::CELLTYPE_STRING){
+									const wchar_t* s = pSheet->readStr(row, col);
+									if (s)
+										str = s;
+								}
+								else if (t == libxl::CellType::CELLTYPE_NUMBER){
+									/*enum NumFormat {
+									NUMFORMAT_GENERAL, NUMFORMAT_NUMBER, NUMFORMAT_NUMBER_D2, NUMFORMAT_NUMBER_SEP, NUMFORMAT_NUMBER_SEP_D2,
+									NUMFORMAT_CURRENCY_NEGBRA, NUMFORMAT_CURRENCY_NEGBRARED, NUMFORMAT_CURRENCY_D2_NEGBRA, NUMFORMAT_CURRENCY_D2_NEGBRARED,
+									NUMFORMAT_PERCENT, NUMFORMAT_PERCENT_D2, NUMFORMAT_SCIENTIFIC_D2, NUMFORMAT_FRACTION_ONEDIG, NUMFORMAT_FRACTION_TWODIG,
+									NUMFORMAT_DATE, NUMFORMAT_CUSTOM_D_MON_YY, NUMFORMAT_CUSTOM_D_MON, NUMFORMAT_CUSTOM_MON_YY,
+									NUMFORMAT_CUSTOM_HMM_AM, NUMFORMAT_CUSTOM_HMMSS_AM, NUMFORMAT_CUSTOM_HMM, NUMFORMAT_CUSTOM_HMMSS,
+									NUMFORMAT_CUSTOM_MDYYYY_HMM,
+									NUMFORMAT_NUMBER_SEP_NEGBRA = 37, NUMFORMAT_NUMBER_SEP_NEGBRARED,
+									NUMFORMAT_NUMBER_D2_SEP_NEGBRA, NUMFORMAT_NUMBER_D2_SEP_NEGBRARED, NUMFORMAT_ACCOUNT, NUMFORMAT_ACCOUNTCUR,
+									NUMFORMAT_ACCOUNT_D2, NUMFORMAT_ACCOUNT_D2_CUR, NUMFORMAT_CUSTOM_MMSS, NUMFORMAT_CUSTOM_H0MMSS,
+									NUMFORMAT_CUSTOM_MMSS0, NUMFORMAT_CUSTOM_000P0E_PLUS0, NUMFORMAT_TEXT
+									};*/
+									libxl::IFormatT<TCHAR>* format;
+									double num = pSheet->readNum(row, col, &format);
+									int num_format = format->numFormat();
+
+									TCHAR buf[128] = {};
+									if (num_format == libxl::NUMFORMAT_GENERAL || num_format == libxl::NUMFORMAT_NUMBER || num_format == libxl::NUMFORMAT_NUMBER_SEP)
+									{
+										str = dealNumberD2(num);
+									}
+									else if (num_format == libxl::NUMFORMAT_NUMBER_D2 || num_format == libxl::NUMFORMAT_NUMBER_SEP_D2)
+									{
+										str = dealNumberD2(num);
+									}
+									else if (num_format == libxl::NUMFORMAT_PERCENT || num_format == libxl::NUMFORMAT_PERCENT_D2)
+									{
+										swprintf_s(buf, 128, L"%.2f", num * 100);
+										str = buf;
+									}
+									else if (num_format == libxl::NUMFORMAT_DATE || num_format == libxl::NUMFORMAT_CUSTOM_D_MON_YY || num_format == libxl::NUMFORMAT_CUSTOM_D_MON || num_format == libxl::NUMFORMAT_CUSTOM_MON_YY)
+									{
+										int y = 0, m = 0, d = 0;
+										if (book->dateUnpack(num, &y, &m, &d))
+										{
+											wchar_t buf[32] = {};
+											swprintf_s(buf, L"%04d-%02d-%02d", y, m, d);
+											str = buf;
+										}
+									}
+									else
+									{
+										if (date_costom_format == -1)
+										{
+											const wchar_t* p1 = book->customNumFormat(num_format);
+											if (p1 && wcslen(p1) > 0 && (wcscmp(p1, L"yyyy\\-mm\\-dd") == 0 || wcscmp(p1, L"yyyy-mm-dd") == 0
+												|| wcscmp(p1, L"yyyy/m/d;@") == 0 || wcscmp(p1, L"yyyy/mm/dd;@") == 0
+												|| wcscmp(p1, L"yyyy/m/d") == 0 || wcscmp(p1, L"yyyy/mm/dd") == 0))
+											{
+												date_costom_format = num_format;
+											}
+										}
+
+										if (date_costom_format != -1 && date_costom_format == num_format)
+										{
+											int y = 0, m = 0, d = 0;
+											if (book->dateUnpack(num, &y, &m, &d))
+											{
+												wchar_t buf[32] = {};
+												swprintf_s(buf, L"%04d-%02d-%02d", y, m, d);
+												str = buf;
+											}
+										}
+										else
+										{
+#ifdef _DEBUG
+											printf("unknown data %d [%d, %d] costom_format:%d\n", s, row, col, t);
+#endif
+											str = L"xxxxxx";
+										}
+									}
+								}
+								else
+								{
+#ifdef _DEBUG
+									printf("unknown data %d [%d, %d] CellType:%d\n", s, row, col, t);
+#endif
+									str = L"xxxxxx";
+								}
+								SetGridItemText(str, row + additional_header_row, col + 1);
+							}
+						}
+					}
+					ret = true;
+				}
+			}
+
+			book->release();
+
+		}
+		return ret;
+	}
+
+	bool GridBody::AutoFixColWidth(int col_index, int min_width, int max_width)
+	{
+		if (col_index < 0 || col_index >= GetColCount())
+			return false;
+		if (max_width != -1 && max_width <= min_width)
+			return false;
+		int col_width = min_width;
+		int row_count = GetRowCount();
+		auto pRender = this->m_pWindow->GetRenderContext();
+		for (int i = 0; i < row_count; i++)
+		{
+			GridRow *pRow = m_vecRow[i];
+			std::wstring str = pRow->at(col_index)->text;
+			if (!str.empty())
+			{
+				UiRect rcMessure = pRender->MeasureText(str, m_strGridFont, m_uTextStyle, 0);
+				int width = rcMessure.right - rcMessure.left + 8;
+				if (col_width < width)
+					col_width = width;
+			}
+		}
+		if (max_width != -1 && col_width > max_width)
+			col_width = max_width;
+
+		SetColumnWidth(col_index, col_width);
+		return true;
 	}
 
 	void GridBody::HandleMessage(EventArgs& event)
@@ -947,6 +1119,7 @@ namespace ui
 					if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
 					{
 						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						AutoFixColWidth(i);
 						break;
 					}
 				}
@@ -1214,7 +1387,7 @@ namespace ui
 					continue;
 				UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 				rc.Offset({ m_rcItem.left, m_rcItem.top });
-				pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+				pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
 				posx += m_hLayout[j];
 			}
 			posy += m_vLayout[i];
@@ -1242,7 +1415,7 @@ namespace ui
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 						rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top });
-						pRender->DrawText(rc, str, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+						pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posx += m_hLayout[j];
 					if (posx - szOff.cx > gridWidth)	//超出grid宽度
@@ -1276,7 +1449,7 @@ namespace ui
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[i], posy + m_vLayout[j] };
 						rc.Offset({ m_rcItem.left, m_rcItem.top - szOff.cy });
-						pRender->DrawText(rc, str, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+						pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posy += m_vLayout[j];
 					if (posy - szOff.cy > gridHeight)	//超出grid高度
@@ -1312,7 +1485,7 @@ namespace ui
 						{
 							UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 							rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
-							pRender->DrawText(rc, str, dwClrColor, L"system_12", m_uTextStyle, 255, false);
+							pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
 						}
 						posx += m_hLayout[j];
 						if (posx - szOff.cx > gridWidth)		//超出grid宽度

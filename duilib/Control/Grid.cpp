@@ -70,10 +70,10 @@ namespace ui
 	std::wstring Grid::GetGridLineColor() const{ return m_pBody->GetGridLineColor(); }
 	void Grid::SetGridLineColor(std::wstring color){ m_pBody->SetGridLineColor(color); }
 
-	std::wstring Grid::GetGridItemText(int row, int col){ return m_pBody->GetGridItemText(row, col); }
-	bool Grid::SetGridItemText(std::wstring text, int row, int col){ return m_pBody->SetGridItemText(text, row, col); }
+	std::wstring Grid::GetGridItemText(int row_index, int col_index){ return m_pBody->GetGridItemText(row_index, col_index); }
+	bool Grid::SetGridItemText(std::wstring text, int row_index, int col_index){ return m_pBody->SetGridItemText(text, row_index, col_index); }
 
-	bool Grid::IsGridItemFixed(int row, int col){ return m_pBody->IsGridItemFixed(row, col); }
+	bool Grid::IsGridItemFixed(int row_index, int col_index){ return m_pBody->IsGridItemFixed(row_index, col_index); }
 
 	int Grid::GetFixedColWidth() const{ return m_pBody->GetFixedColWidth(); }
 	int Grid::GetFixedRowHeight() const{ return m_pBody->GetFixedRowHeight(); }
@@ -81,14 +81,15 @@ namespace ui
 	GridItem* Grid::AddCol(std::wstring text, int width){ return m_pBody->AddCol(text, width); }
 	bool Grid::AddRow(){ return m_pBody->AddRow(); }
 
-	GridItem *Grid::GetGridItem(int row, int col){ return m_pBody->GetGridItem(row, col); }
+	GridItem *Grid::GetGridItem(int row_index, int col_index){ return m_pBody->GetGridItem(row_index, col_index); }
 
 	void Grid::Clear(bool include_header){ return m_pBody->Clear(include_header); }
-	bool Grid::RemoveRow(int row){ return m_pBody->RemoveRow(row); }
-	bool Grid::RemoveCol(int col){ return m_pBody->RemoveCol(col); }
+	bool Grid::RemoveRow(int row_index){ return m_pBody->RemoveRow(row_index); }
+	bool Grid::RemoveCol(int col_index){ return m_pBody->RemoveCol(col_index); }
 
 	void Grid::AttachTextChange(const EventCallback& callback){ return m_pBody->AttachTextChange(callback); }
-	bool Grid::LoadExcel(std::wstring file){ return m_pBody->LoadExcel(file); };
+	bool Grid::LoadExcel(std::wstring file, int sheet_num, bool touch_header){ return m_pBody->LoadExcel(file, sheet_num, touch_header); };
+	bool Grid::AutoFixColWidth(int col_index, int min_width, int max_width){ return m_pBody->AutoFixColWidth(col_index, min_width, max_width); };
 
 	bool Grid::ButtonDown(EventArgs& msg)
 	{

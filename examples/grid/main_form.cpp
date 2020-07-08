@@ -152,6 +152,7 @@ void MainForm::InitWindow()
 	Button *btn_remove_row = static_cast<Button*>(FindControl(L"btn_remove_row"));
 	Button *btn_add_col = static_cast<Button*>(FindControl(L"btn_add_col"));
 	Button *btn_remove_col = static_cast<Button*>(FindControl(L"btn_remove_col"));
+	Button *btn_import_excel = static_cast<Button*>(FindControl(L"btn_import_excel"));
 	btn_add_row->AttachClick([this, grid](ui::EventArgs* args){
 		grid->AddRow();
 		return true;
@@ -167,6 +168,11 @@ void MainForm::InitWindow()
 	});
 	btn_remove_col->AttachClick([this, grid](ui::EventArgs* args){
 		grid->RemoveCol(2);
+		return true;
+	});
+	btn_import_excel->AttachClick([this, grid](ui::EventArgs* args){
+		grid->Clear(true);
+		grid->LoadExcel(L"grid_test.xlsx", 0, true);
 		return true;
 	});
 
