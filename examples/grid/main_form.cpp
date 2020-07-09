@@ -173,6 +173,18 @@ void MainForm::InitWindow()
 	btn_import_excel->AttachClick([this, grid](ui::EventArgs* args){
 		grid->Clear(true);
 		grid->LoadExcel(L"grid_test.xlsx", 0, true);
+
+		GridItem* pItem = grid->GetGridItem(1, 1); 
+		if (pItem)
+			pItem->text_color = L"blue";
+		pItem = grid->GetGridItem(2, 2);
+		if (pItem)
+			pItem->text_style = DT_LEFT | DT_VCENTER | DT_SINGLELINE;
+
+		pItem = grid->GetGridItem(3, 3);
+		if (pItem)
+			pItem->bk_color = L"gray";
+
 		return true;
 	});
 

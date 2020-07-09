@@ -164,6 +164,7 @@ namespace ui
 		virtual bool OnMouseMove(EventArgs& msg);				//no override
 
 		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
+		virtual void PaintBkColor(IRenderContext* pRender) override;
 		virtual void PaintStatusColor(IRenderContext* pRender) override;
 		virtual void PaintText(IRenderContext* pRender) override;
 		virtual void PaintBorder(IRenderContext* pRender) override;
@@ -189,12 +190,24 @@ namespace ui
 
 		virtual void _BeginEditGridItem(GridItem *item);
 		virtual void _EndEdit();
+
+		/*
+		* @brief 获取鼠标位置下的GridItem
+		* @param[in] pt: 鼠标位置;
+		* @param[out] position:	获得的GridItem坐标, base on 0
+		* @param[in] fixed:	是否包含fixed区域;
+		* @return true为成功, 坐标从position获取, false为失败;
+		*/
 		bool _GetGridItemByMouse(CPoint pt, CPoint& position, bool fixed = false);
+
 		int _GetGridItemTop(int row_index);
 		int _GetGridItemLeft(int col_index);
 
 		/*
-		* @brief 清除编辑及选中状态;
+		* @brief 获取GridItem区域位置;
+		* @param[in] row_index: 第几行,base on 0;
+		* @param[in] col_index: 第几列,base on 0;
+		* @return 返回区域位置, 以Grid控件[left,top]为0点, 没有去除滚动位移;
 		*/
 		UiRect _GetGridItemPos(int row_index, int col_index);
 
@@ -235,7 +248,7 @@ namespace ui
 		std::wstring m_strSelForeColor = L"grid_sel_fore";
 		std::wstring m_strGridLineColor = L"grid_line";
 		std::wstring m_strGridFont = L"system_12";
-		UINT	m_uTextStyle = DT_CENTER | DT_CENTER | DT_VCENTER | DT_SINGLELINE;
+		UINT	m_uTextStyle =  DT_CENTER | DT_VCENTER | DT_SINGLELINE;
 		
 		/* 编辑时候的RichEdit/Combo控件 */
 		RichEdit *m_pReEdit = nullptr;

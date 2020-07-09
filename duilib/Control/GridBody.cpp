@@ -1217,6 +1217,61 @@ namespace ui
 		}
 	}
 
+	void GridBody::PaintBkColor(IRenderContext* pRender)
+	{
+		__super::PaintBkColor(pRender);
+
+		CSize szOff = m_pGrid->GetScrollPos();
+		int posx = 0;
+		int posy = 0;
+		int row_count = GetRowCount();
+		int col_count = GetColCount();
+		int fixedColWidth = GetFixedColWidth();
+		int fixedRowHeight = GetFixedRowHeight();
+		int gridWidth = m_pGrid->GetWidth();
+		int gridHeight = m_pGrid->GetHeight();
+
+		UiRect rcClip = m_pGrid->GetPos();
+		rcClip.left += GetFixedColWidth();
+		rcClip.top += GetFixedRowHeight();;
+		AutoClip clip(pRender, rcClip, m_bClip);
+		posy = GetFixedRowHeight();
+		for (int i = m_nFixedRow; i < row_count; i++)
+		{
+			if (m_vLayout[i] == 0)
+				continue;
+			if (posy + m_vLayout[i] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
+			{
+				GridRow *grid_row = m_vecRow[i];
+				posx = GetFixedColWidth();
+				for (size_t j = m_nFixedCol; j < col_count; j++)
+				{
+					if (m_hLayout[j] == 0)
+						continue;
+					if (posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
+					{
+						GridItem *pItem = grid_row->at(j);
+						if (!pItem->bk_color.empty())
+						{
+							UiRect rcPos = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
+							rcPos.Deflate({ 1, 1, 2, 2 });
+							rcPos.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
+							pRender->DrawColor(rcPos, pItem->bk_color, 255);
+						}
+					}
+					
+					posx += m_hLayout[j];
+					if (posx - szOff.cx > gridWidth)		//超出grid宽度
+						break;
+				}
+			}
+			posy += m_vLayout[i];
+			if (posy - szOff.cy > gridHeight)			//超出grid高度
+				break;
+		}
+
+	}
+
 	void GridBody::PaintStatusColor(IRenderContext* pRender)
 	{
 		__super::PaintStatusColor(pRender);
@@ -1372,7 +1427,7 @@ namespace ui
 		int fixedRowHeight = GetFixedRowHeight();
 		int gridWidth = m_pGrid->GetWidth();
 		int gridHeight = m_pGrid->GetHeight();
-		DWORD dwClrColor = GlobalManager::GetTextColor(L"textdefaultcolor");
+		DWORD dwDefColor = GlobalManager::GetTextColor(L"textdefaultcolor");
 
 		//draw fixed col && fixed row text
 		for (int i = 0; i < m_nFixedRow; i++)
@@ -1387,7 +1442,7 @@ namespace ui
 					continue;
 				UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 				rc.Offset({ m_rcItem.left, m_rcItem.top });
-				pRender->DrawText(rc, grid_row->at(j)->text, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
+				pRender->DrawText(rc, grid_row->at(j)->text, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 				posx += m_hLayout[j];
 			}
 			posy += m_vLayout[i];
@@ -1415,7 +1470,7 @@ namespace ui
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 						rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top });
-						pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
+						pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posx += m_hLayout[j];
 					if (posx - szOff.cx > gridWidth)	//超出grid宽度
@@ -1449,7 +1504,7 @@ namespace ui
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[i], posy + m_vLayout[j] };
 						rc.Offset({ m_rcItem.left, m_rcItem.top - szOff.cy });
-						pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
+						pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posy += m_vLayout[j];
 					if (posy - szOff.cy > gridHeight)	//超出grid高度
@@ -1480,12 +1535,20 @@ namespace ui
 					{
 						if (m_hLayout[j] == 0)
 							continue;
-						std::wstring str = grid_row->at(j)->text;
+						GridItem *pItem = grid_row->at(j);
+						//绘制text
+						std::wstring str = pItem->text;
 						if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
 						{
 							UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 							rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
-							pRender->DrawText(rc, str, dwClrColor, m_strGridFont, m_uTextStyle, 255, false);
+							if (pItem->text_color.empty() && pItem->text_style == 0)
+								pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
+							else{
+								DWORD dwColor = (pItem->text_color.empty() ? dwDefColor : GlobalManager::GetTextColor(pItem->text_color));
+								UINT text_style = (pItem->text_style == 0 ? m_uTextStyle : pItem->text_style);
+								pRender->DrawText(rc, str, dwColor, m_strGridFont, text_style, 255, false);
+							}
 						}
 						posx += m_hLayout[j];
 						if (posx - szOff.cx > gridWidth)		//超出grid宽度

@@ -24,6 +24,9 @@ namespace ui
 		std::wstring text;
 		int row_index;
 		int col_index;
+		std::wstring text_color;
+		UINT text_style;
+		std::wstring bk_color;
 		
 		GridItemType type;
 		int iValue;
@@ -32,16 +35,19 @@ namespace ui
 		std::wstring date;
 
 		GridItem(std::wstring txt = L"", int row = -1, int col = -1, GridItemType item_type = GIT_String) : text(txt), row_index(row), col_index(col)\
-			, type(item_type), iValue(0), dValue(0.0){
+			, type(item_type), iValue(0), dValue(0.0), text_style(0){
 			
 		};
 		virtual ~GridItem(){};
 
 		//virtual bool IsValid(){ return true; }
 
-		void ClearAll()
+		void Clear()
 		{
 			text = L"";
+			text_color = L"";
+			bk_color = L"";
+			text_style = 0;
 			_ClearType();
 		}
 
