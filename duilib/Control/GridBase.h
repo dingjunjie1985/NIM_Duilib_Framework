@@ -25,8 +25,9 @@ namespace ui
 		int row_index;
 		int col_index;
 		std::wstring text_color;
-		UINT text_style;
 		std::wstring bk_color;
+		UINT text_style;
+		int flag;
 		
 		GridItemType type;
 		int iValue;
@@ -35,12 +36,21 @@ namespace ui
 		std::wstring date;
 
 		GridItem(std::wstring txt = L"", int row = -1, int col = -1, GridItemType item_type = GIT_String) : text(txt), row_index(row), col_index(col)\
-			, type(item_type), iValue(0), dValue(0.0), text_style(0){
+			, type(item_type), iValue(0), dValue(0.0), text_style(0), flag(0){
 			
 		};
 		virtual ~GridItem(){};
 
 		//virtual bool IsValid(){ return true; }
+		bool IsSelected(){
+			return (flag & 0x00000001) > 0;
+		};
+		void SetSelected(bool selected){
+			if (selected)
+				flag |= 0x00000001;
+			else
+				flag &= ~0x00000001;
+		};
 
 		void Clear()
 		{
@@ -48,6 +58,7 @@ namespace ui
 			text_color = L"";
 			bk_color = L"";
 			text_style = 0;
+			flag = 0;
 			_ClearType();
 		}
 
@@ -117,13 +128,20 @@ namespace ui
 	public:
 		GridSelRange(GridBody *pBody) : m_pBody(pBody){};
 		~GridSelRange(){};
-		void Clear(){ m_vecRange.clear(); };
+		void Clear();
 
-		void SetSelItem(int row_index, int col_index, bool connect= false);
-		void SetSelRow(int row_index, bool connect = false);
-		void SetSelCol(int col_index, bool connect = false);
+		void SetSelItem(int row_index, int col_index, bool connect = false);
+		void SetSelRange(UiRect rc, bool connect = false);
+		void SetSelRow(int row_index, int row_index_end, bool connect = false);
+		void SetSelCol(int col_index, int col_index_end, bool connect = false);
+
+		bool IsItemSelected(int row_index, int col_index);
+		bool IsRowSelected(int row_index);
+		bool IsColSelected(int col_index);
 	protected:
 		GridBody *m_pBody;
+		std::map<int, void*> m_mapSelRow;
+		std::map<int, void*> m_mapSelCol;
 		std::vector<UiRect> m_vecRange;			//用UiRect代表一块选中的区域的四个角
 	};
 

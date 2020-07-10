@@ -215,6 +215,15 @@ namespace ui
 		* @brief 清除编辑及选中状态;
 		*/
 		void _ClearModifyAndSel();
+
+	
+	protected:	//给GridSelRange调用的函数
+		void _SelItem(int row_index, int col_index, bool selected);
+		void _SelRow(int row_index, bool selected);
+		void _SelCol(int col_index, bool selected);
+		void _SelRange(const UiRect& rc, bool selected);
+
+
 	protected:
 		Grid *m_pGrid = nullptr;
 
@@ -235,11 +244,21 @@ namespace ui
 		GridSelRange m_selRange;
 
 		/* 拖动表头相关 */
-		//bool m_bDragColumn = false;
-		int m_nDragColmun = -1;
-		CPoint m_ptDragColumnStart;
-		int m_nDrawDragColumnMovingOffX = 0;			// = m_nDragColmun的右边界 -  m_ptDragColumnMoving.x; 为了保证拖动线的位置准确性
-		CPoint m_ptDragColumnMoving;
+		int m_nDragColIndex = -1;					//被拖动的col_index
+		CPoint m_ptDragColumnStart;					//鼠标按下时mousepoint
+		int m_nDrawDragColumnMovingOffX = 0;		// = m_nDragColIndex的右边界 -  m_ptDragColumnMoving.x; 为了保证拖动线的位置准确性
+		CPoint m_ptDragColumnMoving;				//拖动列宽状态下鼠标移动的位置
+
+		/* 拖动选中相关 */
+		bool m_bDragSel = false;
+		CPoint m_ptDragSelStart;					//保存选中拖动起始row_index和col_index
+		CPoint m_ptDragSelMoving;					//拖动选中状态下row_index和col_index的位置
+
+		/* 非fixed区域的显示GridItem坐标区域;
+		*  top,bottom代表row_index, left, right代表col_index;
+		*  PaintBkColor获取该值, 其他Paint...函数使用该值
+		*/
+		UiRect m_rcShowRange;
 
 		/* 一些属性 */
 		int m_defaultRowHeight = 24;
