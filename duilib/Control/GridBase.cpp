@@ -5,7 +5,7 @@ namespace ui
 	void GridSelRange::Clear() {
 		if (m_vecRange.size() > 0)
 		{
-			m_pBody->_UnSelRange(m_vecRange[0]);
+			m_pBody->_SelRange(m_vecRange[0], false);
 			m_vecRange.clear();
 		}
 

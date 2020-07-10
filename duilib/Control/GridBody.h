@@ -160,13 +160,12 @@ namespace ui
 		virtual void HandleMessage(EventArgs& event) override;
 		virtual bool ButtonDown(EventArgs& msg) override;
 		virtual bool ButtonUp(EventArgs& msg) override;
-		virtual bool OnMouseDoubleClick(EventArgs& msg);		//no override
-		virtual bool OnMouseMove(EventArgs& msg);				//no override
+		virtual bool OnMouseDoubleClick(EventArgs& msg);		//not override
+		virtual bool OnMouseMove(EventArgs& msg);				//not override
 
 		virtual void PaintChild(IRenderContext* pRender, const UiRect& rcPaint) override;
-		virtual void PaintBkColor(IRenderContext* pRender) override;
-		virtual void PaintStatusColor(IRenderContext* pRender) override;
-		virtual void PaintText(IRenderContext* pRender) override;
+		virtual void Paint(IRenderContext* pRender, const UiRect& rcPaint) override;
+		virtual void PaintBody(IRenderContext* pRender);		//not override
 		virtual void PaintBorder(IRenderContext* pRender) override;
 	protected:
 		/**
@@ -193,14 +192,25 @@ namespace ui
 
 		/*
 		* @brief 获取鼠标位置下的GridItem
-		* @param[in] pt: 鼠标位置;
+		* @param[in] pt: 窗体鼠标位置;
 		* @param[out] position:	获得的GridItem坐标, base on 0
 		* @param[in] fixed:	是否包含fixed区域;
 		* @return true为成功, 坐标从position获取, false为失败;
 		*/
 		bool _GetGridItemByMouse(CPoint pt, CPoint& position, bool fixed = false);
 
+		/*
+		* @brief 获取row_index的GridItem的top位置;
+		* @param[in] row_index:	base on 0;
+		* @return: row_index的GridItem的top位置, 没有去除滚动位移
+		*/
 		int _GetGridItemTop(int row_index);
+
+		/*
+		* @brief 获取col_index的GridItem的left位置;
+		* @param[in] col_index:	base on 0;
+		* @return: col_index的GridItem的left位置, 没有去除滚动位移
+		*/
 		int _GetGridItemLeft(int col_index);
 
 		/*
@@ -216,7 +226,14 @@ namespace ui
 		*/
 		void _ClearModifyAndSel();
 
-	
+		/* (暂不用)
+		* @brief 获取非fixed区域的显示GridItem坐标区域;
+		* 赋值到m_rcPaintRange;
+		* return true表示获取成功, false表示获取失败,不用继续绘制了
+		*/
+		bool _GetPaintRangeRect();
+
+
 	protected:	//给GridSelRange调用的函数
 		void _SelItem(int row_index, int col_index, bool selected);
 		void _SelRow(int row_index, bool selected);
@@ -245,20 +262,21 @@ namespace ui
 
 		/* 拖动表头相关 */
 		int m_nDragColIndex = -1;					//被拖动的col_index
-		CPoint m_ptDragColumnStart;					//鼠标按下时mousepoint
+		CPoint m_ptDragColumnStart;					//鼠标按下时mousepoint, 以Grid为zero点
+		CPoint m_ptDragColumnMoving;				//拖动列宽状态下鼠标移动的位置, 以Grid为zero点
 		int m_nDrawDragColumnMovingOffX = 0;		// = m_nDragColIndex的右边界 -  m_ptDragColumnMoving.x; 为了保证拖动线的位置准确性
-		CPoint m_ptDragColumnMoving;				//拖动列宽状态下鼠标移动的位置
 
 		/* 拖动选中相关 */
 		bool m_bDragSel = false;
 		CPoint m_ptDragSelStart;					//保存选中拖动起始row_index和col_index
 		CPoint m_ptDragSelMoving;					//拖动选中状态下row_index和col_index的位置
 
-		/* 非fixed区域的显示GridItem坐标区域;
+		/*	(暂不用)
+		*  非fixed区域的显示GridItem坐标区域;
 		*  top,bottom代表row_index, left, right代表col_index;
 		*  PaintBkColor获取该值, 其他Paint...函数使用该值
 		*/
-		UiRect m_rcShowRange;
+		UiRect m_rcPaintRange;
 
 		/* 一些属性 */
 		int m_defaultRowHeight = 24;

@@ -215,7 +215,96 @@ namespace ui
 		_EndEdit();
 		m_selRange.Clear();
 	}
+#if 0
+	bool GridBody::_GetPaintRangeRect()
+	{
+		m_rcPaintRange.left = -1;
+		m_rcPaintRange.top = -1;
+		m_rcPaintRange.right = -1;
+		m_rcPaintRange.bottom = -1;
 
+		CSize szOff = m_pGrid->GetScrollPos();
+		int posx = 0;
+		int posy = 0;
+		int row_count = GetRowCount();
+		int col_count = GetColCount();
+		int fixed_col_width = GetFixedColWidth();
+		int fixed_row_height = GetFixedRowHeight();
+		int grid_width = m_pGrid->GetWidth();
+		int grid_height = m_pGrid->GetHeight();
+
+		if (fixed_row_height >= grid_height)
+		{
+			m_rcPaintRange.top = 0;
+			posy = 0;
+			for (int row = 0; row < m_nFixedRow; row++)
+			{
+				posy += m_vLayout[row];
+				if (posy > grid_height)			//超出grid高度
+				{
+					m_rcPaintRange.bottom = row;
+					break;
+				}
+			}
+		}
+		else
+		{
+			posy = fixed_row_height;
+			for (int row = m_nFixedRow; row < row_count; row++)
+			{
+				if (m_vLayout[row] == 0)
+					continue;
+				if (m_rcPaintRange.top == -1)
+					if (posy + m_vLayout[row] - szOff.cy > fixed_row_height)		//单元格下边线没有超过fixed_row_height
+						m_rcPaintRange.top = row;
+				posy += m_vLayout[row];
+				if (posy - szOff.cy > grid_height)			//超出grid高度
+				{
+					m_rcPaintRange.bottom = row;
+					break;
+				}
+			}
+		}
+
+		if (fixed_col_width >= grid_width)
+		{
+			m_rcPaintRange.left = 0;
+			posx = 0;
+			for (int col = 0; col < m_nFixedCol; col++)
+			{
+				posx += m_hLayout[col];
+				if (posx > grid_width)			//超出grid宽度
+				{
+					m_rcPaintRange.right = col;
+					break;
+				}
+			}
+		}
+		else
+		{
+			posx = fixed_col_width;
+			for (size_t col = m_nFixedCol; col < col_count; col++)
+			{
+				if (m_hLayout[col] == 0)
+					continue;
+				if (m_rcPaintRange.left == -1)
+					if (posx + m_hLayout[col] - szOff.cx > fixed_col_width)		//单元格右边线没有超过fixed_col_width
+						m_rcPaintRange.left = col;
+
+				posx += m_hLayout[col];
+				if (posx - szOff.cx > grid_width)		//超出grid宽度
+				{
+					m_rcPaintRange.right = col;
+					break;
+				}
+			}
+		}
+		
+		bool ret = m_rcPaintRange.left != -1 && m_rcPaintRange.top != -1 && m_rcPaintRange.right != -1 && m_rcPaintRange.bottom != -1;
+		assert(ret);
+		return ret;
+	}
+#endif
 	GridBody::GridBody(Grid *pGrid) : m_selRange(this), m_pGrid(pGrid){
 		m_vLayout.push_back(m_defaultRowHeight);		//insert header hegith
 		m_vecRow.push_back(new GridRow());
@@ -948,13 +1037,13 @@ namespace ui
 
 			CSize szOff = m_pGrid->GetScrollPos();
 			int fixed_col_width = GetFixedColWidth();
+			int grid_width = m_pGrid->GetWidth();
 			CPoint pt = msg.ptMouse;
 			pt.Offset(-m_rcItem.left, -m_rcItem.top);
 			assert(pt.x > 0 && pt.y > 0);
 			if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
 				return true;
-		/*	UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
-			UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });*/
+
 			int posx = 0;
 			//点击fixed row和fixed col区域
 			if (position.x < m_nFixedCol && position.y < m_nFixedRow)
@@ -975,7 +1064,7 @@ namespace ui
 							break;
 						}
 					}
-				}		
+				}
 				return true;
 			}
 
@@ -985,7 +1074,7 @@ namespace ui
 					m_bDragSel = true;
 					m_ptDragSelStart = position;
 					m_selRange.SetSelRow(position.y, position.y);
-				}	
+				}
 			}
 			else if (position.y < m_nFixedRow)		//点击第一行 选择列
 			{
@@ -996,33 +1085,36 @@ namespace ui
 					for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
 					{
 						posx += m_hLayout[i];
-						if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
+						if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx < DRAG_HEADER_OFF_SIZE)
 						{
 							m_nDragColIndex = i;
 							m_ptDragColumnStart = pt;
 							m_ptDragColumnMoving = pt;
-							m_nDrawDragColumnMovingOffX = posx - pt.x;
+							m_nDrawDragColumnMovingOffX = posx - pt.x - szOff.cx;
 							Invalidate();
 							::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
 							drag_col = true;
 							break;
 						}
+						if (posx - szOff.cx > grid_width)	//超出边界了
+							break;
 					}
 					if (!drag_col){
 						m_bDragSel = true;
 						m_ptDragSelStart = position;
 						m_selRange.SetSelCol(position.x, position.x);
-					}	
+					}
 				}
 			}
-			else{
+			else{		//点击普通区域
 				m_bDragSel = true;
 				m_ptDragSelStart = position;
 				m_selRange.SetSelItem(position.y, position.x);
 			}
-				
 		}
 		else
+			assert(0);
+		/*else
 		{
 			CSize szOff = m_pGrid->GetScrollPos();
 			int fixed_col_width = GetFixedColWidth();
@@ -1060,7 +1152,7 @@ namespace ui
 					}
 				}
 			}
-		}
+		}*/
 		return true;
 	}
 
@@ -1264,132 +1356,18 @@ namespace ui
 		}
 	}
 
-	void GridBody::PaintBkColor(IRenderContext* pRender)
+	void GridBody::Paint(IRenderContext* pRender, const UiRect& rcPaint)
 	{
-		__super::PaintBkColor(pRender);
+		if (!::IntersectRect(&m_rcPaint, &rcPaint, &m_rcItem)) return;
 
-		m_rcShowRange.left = -1;
-		m_rcShowRange.top = -1;
-		m_rcShowRange.right = -1;
-		m_rcShowRange.bottom = -1;
+		PaintBkColor(pRender);
+		PaintBkImage(pRender);
+		PaintStatusColor(pRender);
+		PaintStatusImage(pRender);
+		//PaintText(pRender);
+		PaintBody(pRender);
+		PaintBorder(pRender);
 
-		CSize szOff = m_pGrid->GetScrollPos();
-		int posx = 0;
-		int posy = 0;
-		int row_count = GetRowCount();
-		int col_count = GetColCount();
-		int fixedColWidth = GetFixedColWidth();
-		int fixedRowHeight = GetFixedRowHeight();
-		int gridWidth = m_pGrid->GetWidth();
-		int gridHeight = m_pGrid->GetHeight();
-
-		UiRect rcClip = m_pGrid->GetPos();
-		rcClip.left += GetFixedColWidth();
-		rcClip.top += GetFixedRowHeight();
-		AutoClip clip(pRender, rcClip, m_bClip);
-		posy = GetFixedRowHeight();
-		for (int i = m_nFixedRow; i < row_count; i++)
-		{
-			if (m_vLayout[i] == 0)
-				continue;
-			if (posy + m_vLayout[i] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
-			{
-				GridRow *grid_row = m_vecRow[i];
-				posx = GetFixedColWidth();
-				for (size_t j = m_nFixedCol; j < col_count; j++)
-				{
-					if (m_hLayout[j] == 0)
-						continue;
-					if (posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
-					{
-						GridItem *pItem = grid_row->at(j);
-						if (!pItem->bk_color.empty())
-						{
-							UiRect rcPos = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
-							rcPos.Deflate({ 1, 1, 2, 2 });
-							rcPos.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
-							pRender->DrawColor(rcPos, pItem->bk_color, 255);
-						}
-					}
-					
-					posx += m_hLayout[j];
-					if (posx - szOff.cx > gridWidth)		//超出grid宽度
-						break;
-				}
-			}
-			posy += m_vLayout[i];
-			if (posy - szOff.cy > gridHeight)			//超出grid高度
-				break;
-		}
-
-	}
-
-	void GridBody::PaintStatusColor(IRenderContext* pRender)
-	{
-		__super::PaintStatusColor(pRender);
-		//paint fixed
-		CSize szOff = m_pGrid->GetScrollPos();
-		int row_count = GetRowCount();
-		int col_count = GetColCount();
-		int fixed_row_height = GetFixedRowHeight();
-		int fixed_col_width = GetFixedColWidth();
-		int gridWidth = m_pGrid->GetWidth();
-		int gridHeight = m_pGrid->GetHeight();
-		if (fixed_row_height > 0)
-		{
-			UiRect rcPaint = GetPos();
-			rcPaint.bottom = rcPaint.top + fixed_row_height;
-			rcPaint.right = rcPaint.left + (GetFixedWidth() - szOff.cx > gridWidth ? gridWidth : GetFixedWidth() - szOff.cx);
-			pRender->DrawColor(rcPaint, m_strFixedBkColor, 255);
-		}
-		if (fixed_col_width > 0)
-		{
-			UiRect rcPaint = GetPos();
-			rcPaint.right = rcPaint.left + fixed_col_width;
-			rcPaint.bottom = rcPaint.top + (GetFixedHeight() - szOff.cy > gridHeight ? gridHeight : GetFixedHeight() - szOff.cy);
-			pRender->DrawColor(rcPaint, m_strFixedBkColor, 255);
-		}
-		//paint sel item
-		UiRect rcClip = m_pGrid->GetPos();
-		rcClip.left += GetFixedColWidth();
-		rcClip.top += GetFixedRowHeight();;
-		AutoClip clip(pRender, rcClip, m_bClip);
-
-		UiRect rcPaint = GetPos();
-		if (m_selRange.m_vecRange.size() > 0)
-		{
-			UiRect rcRange = m_selRange.m_vecRange[0];
-			int posx = _GetGridItemLeft(rcRange.left);
-			int posy = _GetGridItemTop(rcRange.top);
-			for (int row = rcRange.top; row <= rcRange.bottom; row++)
-			{
-				if (row >= row_count)
-					break;
-				GridRow *pRow = m_vecRow[row];
-				posx = _GetGridItemLeft(rcRange.left);
-				for (int col = rcRange.left; col <= rcRange.right; col++)
-				{
-					if (col >= col_count)
-						break;
-					if (pRow->at(col)->IsSelected())
-					{
-						UiRect rcPos = { posx, posy, posx + m_hLayout[col], posy + m_vLayout[row] };
-						rcPos.Offset(-szOff.cx, -szOff.cy);
-						if (rcPos.right > fixed_col_width || rcPos.bottom > fixed_row_height){
-							rcPos.Offset(rcPaint.left, rcPaint.top);
-							rcPos.Deflate({ 1, 1, 2, 2 });
-							pRender->DrawColor(rcPos, m_strSelForeColor, 255);
-						}
-					}
-					posx += m_hLayout[col];
-					if (posx - szOff.cx > gridWidth)
-						break;
-				}
-				posy += m_vLayout[row];
-				if (posy - szOff.cy > gridHeight)
-					break;
-			}
-		}
 	}
 
 	void GridBody::PaintBorder(IRenderContext* pRender)
@@ -1400,10 +1378,10 @@ namespace ui
 			CSize szOff = m_pGrid->GetScrollPos();
 			int posx = 0, posy = 0;
 			int headerH = GetHeaderHeight();
-			int fixedColWidth = GetFixedColWidth();
-			int fixedRowHeight = GetFixedRowHeight();
-			int gridWidth = m_pGrid->GetWidth();
-			int gridHeight = m_pGrid->GetHeight();
+			int fixed_col_width = GetFixedColWidth();
+			int fixed_row_height = GetFixedRowHeight();
+			int grid_width = m_pGrid->GetWidth();
+			int grid_height = m_pGrid->GetHeight();
 			UiRect rcLineH, rcLineV;
 			DWORD dwGridLineColor = GlobalManager::GetTextColor(m_strGridLineColor);
 
@@ -1411,7 +1389,7 @@ namespace ui
 			{
 				//draw fixed HLine
 				rcLineH.left = 0;
-				rcLineH.right = GetFixedWidth() - szOff.cx > gridWidth ? gridWidth : GetFixedWidth() - szOff.cx;
+				rcLineH.right = GetFixedWidth() - szOff.cx > grid_width ? grid_width : GetFixedWidth() - szOff.cx;
 				assert(m_nFixedRow <= m_vLayout.size());
 				for (size_t i = 0; i < m_nFixedRow; i++)
 				{
@@ -1423,9 +1401,9 @@ namespace ui
 				for (size_t i = m_nFixedRow; i < m_vLayout.size(); i++)
 				{
 					posy += m_vLayout[i];
-					if (posy - szOff.cy > gridHeight)	//超出grid高度
+					if (posy - szOff.cy > grid_height)	//超出grid高度
 						break;
-					if (posy - szOff.cy > fixedRowHeight && posy - szOff.cy < gridHeight)
+					if (posy - szOff.cy > fixed_row_height && posy - szOff.cy < grid_height)
 					{
 						rcLineH.top = rcLineH.bottom = posy - szOff.cy - 1;
 						pRender->DrawLine(rcLineH, 1, dwGridLineColor);
@@ -1434,7 +1412,7 @@ namespace ui
 			
 				//draw fixed VLine
 				rcLineV.top = 0;
-				rcLineV.bottom = GetFixedHeight() - szOff.cy > gridHeight ? gridHeight : GetFixedHeight() - szOff.cy;
+				rcLineV.bottom = GetFixedHeight() - szOff.cy > grid_height ? grid_height : GetFixedHeight() - szOff.cy;
 				assert(m_nFixedCol <= m_hLayout.size());
 				for (size_t i = 0; i < m_nFixedCol; i++)
 				{
@@ -1446,9 +1424,9 @@ namespace ui
 				for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
 				{
 					posx += m_hLayout[i];
-					if (posx - szOff.cx > gridWidth)		//超出grid宽度
+					if (posx - szOff.cx > grid_width)		//超出grid宽度
 						break;
-					if (posx - szOff.cx > fixedColWidth)
+					if (posx - szOff.cx > fixed_col_width)
 					{
 						rcLineV.left = rcLineV.right = posx - szOff.cx - 1;
 						pRender->DrawLine(rcLineV, 1, dwGridLineColor);
@@ -1458,17 +1436,8 @@ namespace ui
 				//draw drag line
 				if (m_nDragColIndex != -1)
 				{
-					assert(m_nDragColIndex < GetColCount());
-					int left = 0;
-					for (size_t i = 0; i < m_nDragColIndex; i++)
-					{
-						left += m_hLayout[i];
-					}
-					left += MIN_COLUMN_WIDTH ;
-					if (left < m_ptDragColumnMoving.x + m_nDrawDragColumnMovingOffX)
-						left = m_ptDragColumnMoving.x + m_nDrawDragColumnMovingOffX;
-					//printf("left %d\n", left);
-					UiRect rcLine = { left, 0, left, m_pGrid->GetHeight() };
+					int pos = m_ptDragColumnMoving.x + m_nDrawDragColumnMovingOffX;
+					UiRect rcLine = { pos, 0, pos, m_pGrid->GetHeight() };
 					DWORD dwColorLine = 0x8f888888;
 					pRender->DrawLine(rcLine, 2, dwColorLine);
 				}
@@ -1478,18 +1447,34 @@ namespace ui
 		}
 	}
 
-	void GridBody::PaintText(IRenderContext* pRender)
+	void GridBody::PaintBody(IRenderContext* pRender)
 	{
 		CSize szOff = m_pGrid->GetScrollPos();
 		int posx = 0;
 		int posy = 0;
 		int row_count = GetRowCount();
 		int col_count = GetColCount();
-		int fixedColWidth = GetFixedColWidth();
-		int fixedRowHeight = GetFixedRowHeight();
-		int gridWidth = m_pGrid->GetWidth();
-		int gridHeight = m_pGrid->GetHeight();
+		int fixed_col_width = GetFixedColWidth();
+		int fixed_row_height = GetFixedRowHeight();
+		int grid_width = m_pGrid->GetWidth();
+		int grid_height = m_pGrid->GetHeight();
 		DWORD dwDefColor = GlobalManager::GetTextColor(L"textdefaultcolor");
+
+		//draw fixed col && fixed row bkcolor
+		if (fixed_row_height > 0)
+		{
+			UiRect rcPaint = GetPos();
+			rcPaint.bottom = rcPaint.top + fixed_row_height;
+			rcPaint.right = rcPaint.left + (GetFixedWidth() - szOff.cx > grid_width ? grid_width : GetFixedWidth() - szOff.cx);
+			pRender->DrawColor(rcPaint, m_strFixedBkColor, 255);
+		}
+		if (fixed_col_width > 0)
+		{
+			UiRect rcPaint = GetPos();
+			rcPaint.right = rcPaint.left + fixed_col_width;
+			rcPaint.bottom = rcPaint.top + (GetFixedHeight() - szOff.cy > grid_height ? grid_height : GetFixedHeight() - szOff.cy);
+			pRender->DrawColor(rcPaint, m_strFixedBkColor, 255);
+		}
 
 		//draw fixed col && fixed row text
 		for (int i = 0; i < m_nFixedRow; i++)
@@ -1528,18 +1513,18 @@ namespace ui
 					if (m_hLayout[j] == 0)
 						continue;
 					std::wstring str = grid_row->at(j)->text;
-					if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
+					if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixed_col_width)		//单元格右边线没有超过fixed_col_width
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
 						rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top });
 						pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posx += m_hLayout[j];
-					if (posx - szOff.cx > gridWidth)	//超出grid宽度
+					if (posx - szOff.cx > grid_width)	//超出grid宽度
 						break;
 				}
 				posy += m_vLayout[i];
-				if (posy - szOff.cy > gridHeight)		//超出grid高度
+				if (posy - szOff.cy > grid_height)		//超出grid高度
 					break;
 			}
 		}
@@ -1562,23 +1547,23 @@ namespace ui
 						continue;
 					GridRow *grid_row = m_vecRow[j];
 					std::wstring str = grid_row->at(i)->text;
-					if (!str.empty() && posy + m_vLayout[j] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
+					if (!str.empty() && posy + m_vLayout[j] - szOff.cy > fixed_row_height)		//单元格下边线没有超过fixed_row_height
 					{
 						UiRect rc = { posx, posy, posx + m_hLayout[i], posy + m_vLayout[j] };
 						rc.Offset({ m_rcItem.left, m_rcItem.top - szOff.cy });
 						pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 					}
 					posy += m_vLayout[j];
-					if (posy - szOff.cy > gridHeight)	//超出grid高度
+					if (posy - szOff.cy > grid_height)	//超出grid高度
 						break;
 				}
 				posx += m_hLayout[i];
-				if (posx - szOff.cx > gridWidth)		//超出grid宽度
+				if (posx - szOff.cx > grid_width)		//超出grid宽度
 					break;
 			}
 		}
 
-		//draw other text
+		//draw other GridItem
 		{
 			UiRect rcClip = m_pGrid->GetPos();
 			rcClip.left += GetFixedColWidth();
@@ -1589,7 +1574,7 @@ namespace ui
 			{
 				if (m_vLayout[i] == 0)
 					continue;
-				if (posy + m_vLayout[i] - szOff.cy > fixedRowHeight)		//单元格下边线没有超过fixedRowHeight
+				if (posy + m_vLayout[i] - szOff.cy > fixed_row_height)		//单元格下边线没有超过fixed_row_height
 				{
 					GridRow *grid_row = m_vecRow[i];
 					posx = GetFixedColWidth();
@@ -1598,12 +1583,24 @@ namespace ui
 						if (m_hLayout[j] == 0)
 							continue;
 						GridItem *pItem = grid_row->at(j);
+
+						UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
+						rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
+						rc.Deflate({ 1, 1, 2, 2 });
+						//绘制单元格背景色
+						if (pItem->IsSelected())
+						{
+							pRender->DrawColor(rc, m_strSelForeColor, 255);
+						}
+						else if (!pItem->bk_color.empty())
+						{
+							pRender->DrawColor(rc, pItem->bk_color, 255);
+						}
+
 						//绘制text
 						std::wstring str = pItem->text;
-						if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixedColWidth)		//单元格右边线没有超过fixedColWidth
+						if (!str.empty() && posx + m_hLayout[j] - szOff.cx > fixed_col_width)		//单元格右边线没有超过fixed_col_width
 						{
-							UiRect rc = { posx, posy, posx + m_hLayout[j], posy + m_vLayout[i] };
-							rc.Offset({ m_rcItem.left - szOff.cx, m_rcItem.top - szOff.cy });
 							if (pItem->text_color.empty() && pItem->text_style == 0)
 								pRender->DrawText(rc, str, dwDefColor, m_strGridFont, m_uTextStyle, 255, false);
 							else{
@@ -1613,12 +1610,12 @@ namespace ui
 							}
 						}
 						posx += m_hLayout[j];
-						if (posx - szOff.cx > gridWidth)		//超出grid宽度
+						if (posx - szOff.cx > grid_width)		//超出grid宽度
 							break;
 					}
 				}
 				posy += m_vLayout[i];
-				if (posy - szOff.cy > gridHeight)			//超出grid高度
+				if (posy - szOff.cy > grid_height)			//超出grid高度
 					break;
 			}
 		}
@@ -1640,7 +1637,7 @@ namespace ui
 			int row_size = pRow->size();
 			for (int i = 0; i < row_size; i++)
 			{
-				pRow->at(0)->SetSelected(selected);
+				pRow->at(i)->SetSelected(selected);
 			}
 		}
 	}
