@@ -130,12 +130,12 @@ namespace ui
 		~GridSelRange(){};
 		void Clear();
 
-		void SetSelItem(int row_index, int col_index, bool connect = false);
-		void SetSelRange(UiRect rc, bool connect = false);
-		void SetSelRow(int row_index, int row_index_end, bool connect = false);
-		void SetSelCol(int col_index, int col_index_end, bool connect = false);
+		void SetSelItem(int row_index, int col_index, bool ctrl = false, bool shift = false);
+		void SetSelRange(UiRect rc, bool ctrl = false, bool shift = false);
+		void SetSelRow(int row_index, int row_index_end, bool ctrl = false, bool shift = false);
+		void SetSelCol(int col_index, int col_index_end, bool ctrl = false, bool shift = false);
 
-		bool IsItemSelected(int row_index, int col_index);
+		//bool IsItemSelected(int row_index, int col_index);
 		bool IsRowSelected(int row_index);
 		bool IsColSelected(int col_index);
 	protected:

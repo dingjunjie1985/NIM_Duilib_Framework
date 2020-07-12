@@ -97,9 +97,9 @@ namespace ui
 		assert(pt.x > 0 && pt.y > 0);
 		if (pt.x <= 0 || pt.y <= 0)
 			return false;
-		UiRect rcFixed({ 0, 0, fixed_col_width, fixed_row_height });
-		UiRect rcFixedRow({ fixed_col_width, 0, m_pGrid->GetWidth(), fixed_row_height });
-		UiRect rcFixedCol({ 0, fixed_row_height, fixed_col_width, m_pGrid->GetHeight() });
+		UiRect rcFixed({ 0, 0, fixed_col_width + 1, fixed_row_height + 1 });
+		UiRect rcFixedRow({ fixed_col_width, 0, m_pGrid->GetWidth(), fixed_row_height + 1 });
+		UiRect rcFixedCol({ 0, fixed_row_height, fixed_col_width + 1, m_pGrid->GetHeight() });
 		if (rcFixed.IsPointIn(pt) || rcFixedRow.IsPointIn(pt) || rcFixedCol.IsPointIn(pt))		//in position of fixed row or fixed col
 		{
 			bool bFind = false;
@@ -1030,6 +1030,8 @@ namespace ui
 	{
 		_EndEdit();
 		CPoint position;
+		bool ctrl = (msg.wParam & MK_CONTROL);
+		bool shift = (msg.wParam& MK_SHIFT);
 		bool bFind = _GetGridItemByMouse(msg.ptMouse, position, true);
 		if (bFind)
 		{
@@ -1073,7 +1075,7 @@ namespace ui
 				if (position.x == 0){
 					m_bDragSel = true;
 					m_ptDragSelStart = position;
-					m_selRange.SetSelRow(position.y, position.y);
+					m_selRange.SetSelRow(position.y, position.y, ctrl, shift);
 				}
 			}
 			else if (position.y < m_nFixedRow)		//点击第一行 选择列
@@ -1102,57 +1104,19 @@ namespace ui
 					if (!drag_col){
 						m_bDragSel = true;
 						m_ptDragSelStart = position;
-						m_selRange.SetSelCol(position.x, position.x);
+						m_selRange.SetSelCol(position.x, position.x, ctrl, shift);
 					}
 				}
 			}
 			else{		//点击普通区域
 				m_bDragSel = true;
 				m_ptDragSelStart = position;
-				m_selRange.SetSelItem(position.y, position.x);
+				m_selRange.SetSelItem(position.y, position.x, ctrl, shift);
 			}
 		}
 		else
 			assert(0);
-		/*else
-		{
-			CSize szOff = m_pGrid->GetScrollPos();
-			int fixed_col_width = GetFixedColWidth();
-
-			CPoint pt = msg.ptMouse;
-			pt.Offset(-m_rcItem.left, -m_rcItem.top);
-			assert(pt.x > 0 && pt.y > 0);
-			if (pt.x <= 0 || pt.y <= 0 || m_vLayout.size() == 0)
-				return true;
-			UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
-			UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
-			int posx = 0;
-			if (rcFixedHeader.IsPointIn(pt))
-			{
-				for (size_t i = 0; i < m_nFixedCol; i++)
-				{
-					posx += m_hLayout[i];
-					if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
-					{
-						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
-						break;
-					}
-				}
-			}
-			else if (rcHeader.IsPointIn(pt))
-			{
-				posx = fixed_col_width;
-				for (size_t i = m_nFixedCol; i < m_hLayout.size(); i++)
-				{
-					posx += m_hLayout[i];
-					if (posx - pt.x - szOff.cx >= 0 && posx - pt.x - szOff.cx< DRAG_HEADER_OFF_SIZE)
-					{
-						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
-						break;
-					}
-				}
-			}
-		}*/
+		
 		return true;
 	}
 
@@ -1216,6 +1180,7 @@ namespace ui
 					if (posx - pt.x >= 0 && posx - pt.x < DRAG_HEADER_OFF_SIZE)
 					{
 						::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZEWE)));
+						AutoFixColWidth(i);
 						break;
 					}
 				}
@@ -1253,14 +1218,15 @@ namespace ui
 			if (m_nDragColIndex != -1)			//正在调整列宽
 			{
 				m_ptDragColumnMoving = pt;
-				Invalidate();
-				return true;
+				Invalidate();	
 			}
 			else if (m_bDragSel)				//正在选择GridItem
 			{
 				if (pt.x >= m_pGrid->GetWidth() || pt.y >= m_pGrid->GetHeight())		//超出Grid控件位置限制
 					return true;
 				CPoint position;
+				bool ctrl = (msg.wParam & MK_CONTROL);
+				bool shift = (msg.wParam& MK_SHIFT);
 				bool bFind = _GetGridItemByMouse(msg.ptMouse, position, true);
 				if (bFind && position != m_ptDragSelStart)
 				{
@@ -1270,18 +1236,19 @@ namespace ui
 					int bottom = max(position.y, m_ptDragSelStart.y);
 					if (m_ptDragSelStart.x < m_nFixedCol && m_ptDragSelStart.x == 0)		//sel row drag
 					{
-						m_selRange.SetSelRow(top, bottom);
+						m_selRange.SetSelRow(top, bottom, ctrl, shift);
 					}
 					else if (m_ptDragSelStart.y < m_nFixedRow && m_ptDragSelStart.y == 0)	//sel col drag
 					{
-						m_selRange.SetSelCol(left, right);
+						m_selRange.SetSelCol(left, right, ctrl, shift);
 					}
 					else
 					{
-						m_selRange.SetSelRange({ left, top, right, bottom });
+						m_selRange.SetSelRange({ left, top, right, bottom }, ctrl, shift);
 					}				
 				}
 			}
+			return true;
 		}
 		UiRect rcFixedHeader({ 0, 0, fixed_col_width, m_vLayout[0] });
 		UiRect rcHeader({ fixed_col_width, 0, m_pGrid->GetWidth(), m_vLayout[0] });
@@ -1660,13 +1627,13 @@ namespace ui
 		int col_count = GetColCount();
 		int left = rc.left;
 		int top = rc.top;
-		int right = (rc.right < col_count ? col_count : rc.right);
-		int bottom = (rc.bottom < row_count ? row_count : rc.bottom);
+		int right = (rc.right < col_count ? rc.right : col_count - 1);
+		int bottom = (rc.bottom < row_count ? rc.bottom : row_count - 1);
 
-		for (int row = top; row < bottom; row++)
+		for (int row = top; row <= bottom; row++)
 		{
 			GridRow *pRow = m_vecRow[row];
-			for (int col = 0; col < right; col++)
+			for (int col = left; col <= right; col++)
 			{
 				pRow->at(col)->SetSelected(selected);
 			}
