@@ -131,10 +131,12 @@ namespace ui
 		void Clear();
 
 		void SetSelItem(int row_index, int col_index, bool ctrl = false, bool shift = false);
-		void SetSelRange(UiRect rc, bool ctrl = false, bool shift = false);
-		void SetSelRow(int row_index, int row_index_end, bool ctrl = false, bool shift = false);
-		void SetSelCol(int col_index, int col_index_end, bool ctrl = false, bool shift = false);
-
+		void SetSelItemRange(UiRect rc, bool ctrl = false, bool shift = false);
+		void SetSelRow(int row_index, bool ctrl = false, bool shift = false);
+		void SetSelRowRange(int row_index, int row_index_end, bool ctrl = false, bool shift = false);
+		void SetSelCol(int col_index, bool ctrl = false, bool shift = false);
+		void SetSelColRange(int col_index, int col_index_end, bool ctrl = false, bool shift = false);
+		void MergeRange();
 		//bool IsItemSelected(int row_index, int col_index);
 		bool IsRowSelected(int row_index);
 		bool IsColSelected(int col_index);

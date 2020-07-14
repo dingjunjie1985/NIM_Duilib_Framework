@@ -1075,7 +1075,7 @@ namespace ui
 				if (position.x == 0){
 					m_bDragSel = true;
 					m_ptDragSelStart = position;
-					m_selRange.SetSelRow(position.y, position.y, ctrl, shift);
+					m_selRange.SetSelRow(position.y, ctrl, shift);
 				}
 			}
 			else if (position.y < m_nFixedRow)		//点击第一行 选择列
@@ -1104,7 +1104,7 @@ namespace ui
 					if (!drag_col){
 						m_bDragSel = true;
 						m_ptDragSelStart = position;
-						m_selRange.SetSelCol(position.x, position.x, ctrl, shift);
+						m_selRange.SetSelCol(position.x, ctrl, shift);
 					}
 				}
 			}
@@ -1139,6 +1139,7 @@ namespace ui
 		if (m_bDragSel)
 		{
 			m_bDragSel = false;
+			m_selRange.MergeRange();
 		}
 
 		return true;
@@ -1228,23 +1229,27 @@ namespace ui
 				bool ctrl = (msg.wParam & MK_CONTROL);
 				bool shift = (msg.wParam& MK_SHIFT);
 				bool bFind = _GetGridItemByMouse(msg.ptMouse, position, true);
-				if (bFind && position != m_ptDragSelStart)
+				if (bFind && (position != m_ptDragSelStart || m_bDrageSelChanged))
 				{
+					if (position != m_ptDragSelStart)
+						m_bDrageSelChanged = true;
+					else
+						m_bDrageSelChanged = false;
 					int left = min(position.x, m_ptDragSelStart.x);
 					int top = min(position.y, m_ptDragSelStart.y);
 					int right = max(position.x, m_ptDragSelStart.x);
 					int bottom = max(position.y, m_ptDragSelStart.y);
 					if (m_ptDragSelStart.x < m_nFixedCol && m_ptDragSelStart.x == 0)		//sel row drag
 					{
-						m_selRange.SetSelRow(top, bottom, ctrl, shift);
+						m_selRange.SetSelRowRange(top, bottom, ctrl, shift);
 					}
 					else if (m_ptDragSelStart.y < m_nFixedRow && m_ptDragSelStart.y == 0)	//sel col drag
 					{
-						m_selRange.SetSelCol(left, right, ctrl, shift);
+						m_selRange.SetSelColRange(left, right, ctrl, shift);
 					}
 					else
 					{
-						m_selRange.SetSelRange({ left, top, right, bottom }, ctrl, shift);
+						m_selRange.SetSelItemRange({ left, top, right, bottom }, ctrl, shift);
 					}				
 				}
 			}

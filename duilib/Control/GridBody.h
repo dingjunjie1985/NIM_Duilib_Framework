@@ -268,6 +268,7 @@ namespace ui
 
 		/* 拖动选中相关 */
 		bool m_bDragSel = false;
+		bool m_bDrageSelChanged = false;
 		CPoint m_ptDragSelStart;					//保存选中拖动起始row_index和col_index
 		CPoint m_ptDragSelMoving;					//拖动选中状态下row_index和col_index的位置
 
