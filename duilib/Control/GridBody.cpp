@@ -1022,6 +1022,11 @@ namespace ui
 			OnMouseMove(event);
 			bHandle = true;
 		}
+		else if (event.Type == kEventKeyDown)
+		{
+			OnKeyDown(event);
+			bHandle = true;
+		}
 		if (!bHandle)
 			__super::HandleMessage(event);
 	}
@@ -1283,6 +1288,49 @@ namespace ui
 				}
 			}
 		}
+	}
+
+	bool GridBody::OnKeyDown(EventArgs& msg)
+	{
+		/*bool ctrl = (msg.wParam & MK_CONTROL);
+		bool shift = (msg.wParam& MK_SHIFT);*/
+		bool ctrl = (::GetKeyState(VK_CONTROL) & 0x80) > 0;		//判断CTRL键是否是被按下的状态
+		bool shift = (::GetKeyState(VK_SHIFT) & 0x80) > 0;		//判断Shift键是否是被按下的状态
+		printf("GridBody::OnKeyDown %d\n", msg.chKey);
+		switch (msg.chKey)
+		{
+		case VK_LEFT:
+		case VK_UP:
+		case VK_RIGHT:
+		case VK_DOWN:
+			m_selRange.MoveSelItem(msg.chKey, ctrl, shift);
+			break;
+		case VK_DELETE:
+			m_selRange.ClearContent();
+			break;
+		case VK_ESCAPE:
+			m_selRange.Clear();
+			break;
+		case L'A':
+			if (ctrl)
+				m_selRange.SetSelAll();
+			break;
+		case L'C':
+			if (ctrl)
+				m_selRange.CtrlCorX(false);
+			break;
+		case L'V':
+			if (ctrl)
+				m_selRange.CtrlV();
+			break;
+		case L'X':
+			if (ctrl)
+				m_selRange.CtrlCorX(true);
+			break;
+		default:
+			break;
+		}
+		return true;
 	}
 
 	bool GridBody::OnComboEditSelected(EventArgs *args)

@@ -129,7 +129,9 @@ namespace ui
 		GridSelRange(GridBody *pBody) : m_pBody(pBody){};
 		~GridSelRange(){};
 		void Clear();
+		void ClearContent();
 
+		void SetSelAll();
 		void SetSelItem(int row_index, int col_index, bool ctrl = false, bool shift = false);
 		void SetSelItemRange(UiRect rc, bool ctrl = false, bool shift = false);
 		void SetSelRow(int row_index, bool ctrl = false, bool shift = false);
@@ -140,11 +142,21 @@ namespace ui
 		//bool IsItemSelected(int row_index, int col_index);
 		bool IsRowSelected(int row_index);
 		bool IsColSelected(int col_index);
+		bool GetSelRange(UiRect &rc);
+
+		bool MoveSelItem(TCHAR move_key, bool ctrl = false, bool shift = false);
+
+		void CtrlCorX(bool cut);
+		void CtrlV();
+
+
 	protected:
 		GridBody *m_pBody;
 		std::map<int, void*> m_mapSelRow;
 		std::map<int, void*> m_mapSelCol;
 		std::vector<UiRect> m_vecRange;			//用UiRect代表一块选中的区域的四个角
+
+		bool m_bSelAll = false;
 	};
 
 	//typedef std::vector<GridItem*> GridRow;
