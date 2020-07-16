@@ -228,6 +228,7 @@ void Box::SetAttribute(const std::wstring& strName, const std::wstring& strValue
 
 	}
 	else if( strName == _T("mousechild") ) SetMouseChildEnabled(strValue == _T("true"));
+	else if (strName == _T("popwindow")) SetPopWindowEnabled(strValue == _T("true"));
 	else Control::SetAttribute(strName, strValue);
 }
 
@@ -687,6 +688,24 @@ bool Box::IsMouseChildEnabled() const
 void Box::SetMouseChildEnabled(bool bEnable)
 {
 	m_bMouseChildEnabled = bEnable;
+}
+
+bool Box::IsPopWindowEnabled() const
+{
+	return m_bPopWindow;
+}
+
+void Box::SetPopWindowEnabled(bool bEnable)
+{
+	m_bPopWindow = bEnable;
+}
+
+bool Box::PopWindow(std::wstring title)
+{
+	bool ret = false;
+
+
+	return ret;
 }
 
 Layout* Box::GetLayout() const

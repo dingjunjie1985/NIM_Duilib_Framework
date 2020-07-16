@@ -257,6 +257,26 @@ public:
     virtual void SetMouseChildEnabled(bool bEnable = true);
 
 	/**
+	* @brief 获取容器脱离原窗口,并组建新窗口;
+	* @return true 为允许，false 为不允许
+	*/
+	virtual bool IsPopWindowEnabled() const;
+
+	/**
+	* @brief 设置容器是否允许容器脱离原窗口,并组建新窗口
+	* @param[in] bEnable 设置为 true 为允许，设置为 false 为不允许
+	* @return 无
+	*/
+	virtual void SetPopWindowEnabled(bool bEnable = true);
+
+	/**
+	* @brief 容器脱离原窗口,并组建新窗口;
+	* @param[in] title 新窗口标题
+	* @return true 为成功，false 为失败
+	*/
+	virtual bool PopWindow(std::wstring title);
+
+	/**
 	 * @brief 获取容器布局对象指针
 	 * @return 返回容器关联的布局对象指针
 	 */
@@ -299,6 +319,7 @@ protected:
 	bool m_bAutoDestroy;
 	bool m_bDelayedDestroy;
 	bool m_bMouseChildEnabled;
+	bool m_bPopWindow;					//add by djj 20200716
 	std::vector<Control*> m_items;
 	EventMap OnBubbledEvent;
 };
