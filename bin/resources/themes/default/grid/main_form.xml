@@ -28,6 +28,7 @@
         <Button class="btn_global_blue" name="btn_add_col" width="80" height="20" margin="0,10" align="hcenter" text="添加列"/>
         <Button class="btn_global_blue" name="btn_remove_col" width="80" height="20" margin="0,10" align="hcenter" text="删除列2"/>
         <Button class="btn_global_blue" name="btn_import_excel" width="80" height="20" margin="0,10" align="hcenter" text="导入excel"/>
+        <Button class="btn_global_blue" name="btn_move_to_new_window" width="80" height="20" margin="0,10" align="hcenter" text="新窗口"/>
       </VBox>
     </HBox>
   </VBox>

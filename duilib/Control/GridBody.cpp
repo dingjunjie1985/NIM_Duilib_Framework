@@ -1114,6 +1114,14 @@ namespace ui
 				}
 			}
 			else{		//点击普通区域
+				if (!ctrl && !shift)
+				{
+					GridItem *pItem = GetGridItem(position.y, position.x);
+					if (pItem && pItem->IsSelected())
+					{
+						_BeginEditGridItem(pItem);
+					}
+				}
 				m_bDragSel = true;
 				m_ptDragSelStart = position;
 				m_selRange.SetSelItem(position.y, position.x, ctrl, shift);
@@ -1292,11 +1300,9 @@ namespace ui
 
 	bool GridBody::OnKeyDown(EventArgs& msg)
 	{
-		/*bool ctrl = (msg.wParam & MK_CONTROL);
-		bool shift = (msg.wParam& MK_SHIFT);*/
 		bool ctrl = (::GetKeyState(VK_CONTROL) & 0x80) > 0;		//判断CTRL键是否是被按下的状态
 		bool shift = (::GetKeyState(VK_SHIFT) & 0x80) > 0;		//判断Shift键是否是被按下的状态
-		printf("GridBody::OnKeyDown %d\n", msg.chKey);
+		//printf("GridBody::OnKeyDown %d\n", msg.chKey);
 		switch (msg.chKey)
 		{
 		case VK_LEFT:
