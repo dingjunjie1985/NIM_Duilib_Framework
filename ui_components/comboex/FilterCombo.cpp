@@ -91,7 +91,7 @@ LRESULT CFilterComboWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     if( uMsg == WM_CREATE ) {
         this->Window::Init(m_hWnd);
 		Box* pRoot = new Box;
-		pRoot->SetAutoDestroy(false);
+		pRoot->SetAutoDestroyChild(false);
 		pRoot->Add(m_pOwner->GetListBox());
 		m_pOwner->GetListBox()->SetFilterComboWnd(this);
 		this->AttachDialog(pRoot);
@@ -237,7 +237,7 @@ FilterCombo::FilterCombo() :
 	m_pLayout->SetBkColor(L"bk_wnd_lightcolor");
 	m_pLayout->SetBorderColor(L"splitline_level1");
 	m_pLayout->SetBorderSize(UiRect(1, 1, 1, 1));
-	m_pLayout->SetAutoDestroy(false);
+	m_pLayout->SetAutoDestroyChild(false);
 	m_pLayout->EnableScrollBar();
 	m_pLayout->ApplyAttributeList(GetDropBoxAttributeList());
 	m_pLayout->AttachSelect(nbase::Bind(&FilterCombo::OnSelectItem, this, std::placeholders::_1));

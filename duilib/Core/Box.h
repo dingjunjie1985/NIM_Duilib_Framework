@@ -218,26 +218,26 @@ public:
 	void ResetChildIndex(Control* pChild, std::size_t iIndex);
 
 	/**
-	 * @brief 判断是否自动销毁
+	 * @brief 判断是否自动销毁子控件
 	 * @return true 为自动销毁，false 为不自动销毁
 	 */
-    virtual bool IsAutoDestroy() const;
+    virtual bool IsAutoDestroyChild() const;
 
 	/**
-	 * @brief 设置控件是否自动销毁
+	 * @brief 设置控件是否自动销毁子控件
 	 * @param[in] bAuto true 为自动销毁，false 为不自动销毁
 	 * @return 无
 	 */
-    virtual void SetAutoDestroy(bool bAuto);
+    virtual void SetAutoDestroyChild(bool bAuto);
 
 	/**
-	 * @brief 判断窗口关闭后是否自动销毁
+	 * @brief 判断窗口关闭后是否自动销毁子控件
 	 * @return true 为自动销毁，false 为不自动销毁
 	 */
     virtual bool IsDelayedDestroy() const;
 
 	/**
-	 * @brief 设置窗口关闭后是否自动销毁
+	 * @brief 设置窗口关闭后是否自动销毁子控件
 	 * @param[in] bDelayed true 为自动销毁，false 为不自动销毁
 	 * @return 无
 	 */
@@ -316,7 +316,7 @@ private:
 
 protected:
 	std::unique_ptr<Layout> m_pLayout;
-	bool m_bAutoDestroy;
+	bool m_bAutoDestroyChild;
 	bool m_bDelayedDestroy;
 	bool m_bMouseChildEnabled;
 	bool m_bPopWindow;					//add by djj 20200716

@@ -186,7 +186,7 @@ UiRect Layout::GetInternalPos() const
 
 Box::Box(Layout* pLayout) :
 	m_pLayout(pLayout),
-	m_bAutoDestroy(true),
+	m_bAutoDestroyChild(true),
 	m_bDelayedDestroy(true),
 	m_bMouseChildEnabled(true),
 	m_items(),
@@ -197,7 +197,7 @@ Box::Box(Layout* pLayout) :
 
 Box::Box(const Box& r) :
 	Control(r),
-	m_bAutoDestroy(r.m_bAutoDestroy),
+	m_bAutoDestroyChild(r.m_bAutoDestroyChild),
 	m_bDelayedDestroy(r.m_bDelayedDestroy),
 	m_bMouseChildEnabled(r.m_bMouseChildEnabled),
 	m_items(),
@@ -590,7 +590,7 @@ bool Box::Remove(Control* pControl)
 	for (auto it = m_items.begin(); it != m_items.end(); it++) {
 		if( *it == pControl ) {
 			Arrange();
-			if( m_bAutoDestroy ) {
+			if( m_bAutoDestroyChild ) {
 				if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup(pControl);             
 				else delete pControl;
 			}
@@ -613,7 +613,7 @@ bool Box::RemoveAt(std::size_t iIndex)
 
 void Box::RemoveAll()
 {
-	if (m_bAutoDestroy) {
+	if (m_bAutoDestroyChild) {
 		for (auto it = m_items.begin(); it != m_items.end(); it++) {
 			if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup((*it));             
 			else delete (*it);
@@ -660,14 +660,14 @@ void Box::ResetChildIndex(Control* pChild, std::size_t iIndex)
 	}
 }
 
-bool Box::IsAutoDestroy() const
+bool Box::IsAutoDestroyChild() const
 {
-	return m_bAutoDestroy;
+	return m_bAutoDestroyChild;
 }
 
-void Box::SetAutoDestroy(bool bAuto)
+void Box::SetAutoDestroyChild(bool bAuto)
 {
-	m_bAutoDestroy = bAuto;
+	m_bAutoDestroyChild = bAuto;
 }
 
 bool Box::IsDelayedDestroy() const
@@ -703,7 +703,16 @@ void Box::SetPopWindowEnabled(bool bEnable)
 bool Box::PopWindow(std::wstring title)
 {
 	bool ret = false;
-
+	if (!IsPopWindowEnabled())
+		return false;
+	SetAutoDestroyChild(false);
+	assert(m_pParent);
+	if (m_pParent)
+	{
+		m_pParent->SetAutoDestroyChild(false);
+		m_pParent->Remove(this);
+		DragPopWindow::CreateAndShow(this);
+	}
 
 	return ret;
 }

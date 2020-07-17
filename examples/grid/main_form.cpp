@@ -153,7 +153,7 @@ void MainForm::InitWindow()
 	Button *btn_add_col = static_cast<Button*>(FindControl(L"btn_add_col"));
 	Button *btn_remove_col = static_cast<Button*>(FindControl(L"btn_remove_col"));
 	Button *btn_import_excel = static_cast<Button*>(FindControl(L"btn_import_excel"));
-	Button *btn_import_excel = static_cast<Button*>(FindControl(L"btn_import_excel"));
+	Button *btn_pop_window = static_cast<Button*>(FindControl(L"btn_pop_window"));
 	btn_add_row->AttachClick([this, grid](ui::EventArgs* args){
 		grid->AddRow();
 		return true;
@@ -188,7 +188,14 @@ void MainForm::InitWindow()
 
 		return true;
 	});
-
+	btn_pop_window->AttachClick([this, grid](ui::EventArgs* args){
+		Box *box = static_cast<Box*>(FindControl(L"hbox_pop"));
+		if (box && box->IsPopWindowEnabled())
+		{
+			box->PopWindow(L"ÐÂµÄGrid´°¿Ú");
+		}
+		return true;
+	});
 	//tree_ = static_cast<TreeView*>(FindControl(L"tree"));
 }
 

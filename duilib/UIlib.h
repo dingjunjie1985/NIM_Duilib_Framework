@@ -113,6 +113,7 @@
 #include "Core/Control.h"
 #include "Core/Box.h"
 #include "Utils/WinImplBase.h"
+#include "Utils/DragPopWindow.h"
 
 #include "Box/VBox.h"
 #include "Box/HBox.h"

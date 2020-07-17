@@ -401,7 +401,7 @@ CPoint PlaceHolder::GetScrollOffset() const
 	if (lbParent && (lbParent->IsVScrollBarValid() || lbParent->IsHScrollBarValid()) && IsFloat()) {		//mod by djj 20200529 添加‘或条件’lbParent->IsHScrollBarValid(),解决只有HSroll时显示问题
 		return scrollPos;
 	}
-    while (parent && (!dynamic_cast<ScrollableBox*>(parent) || (!dynamic_cast<ScrollableBox*>(parent)->IsVScrollBarValid() && !dynamic_cast<ScrollableBox*>(parent)->IsHScrollBarValid())))
+	while (parent && (!lbParent || (!lbParent->IsVScrollBarValid() && !lbParent->IsHScrollBarValid())))
 	{
 		parent = parent->GetParent();
 	}
