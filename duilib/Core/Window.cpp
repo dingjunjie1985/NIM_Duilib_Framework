@@ -454,6 +454,18 @@ void Window::ReapObjects(Control* pControl)
 			m_mNameHash.erase(it);
 		}
 	}
+
+#if 1	//add by djj 20200718
+	Box *box = dynamic_cast<Box*>(pControl);
+	if (box)
+	{
+		for (int i = 0; i < box->GetCount(); i++)
+		{
+			ReapObjects(box->GetItemAt(i));
+		}
+	}
+	
+#endif
 }
 
 std::wstring Window::GetWindowResourcePath()

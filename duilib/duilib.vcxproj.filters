@@ -370,5 +370,6 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\bin\resources\themes\default\global.xml" />
+    <Xml Include="..\bin\resources\themes\default\drag_pop_window\drag_pop_window.xml" />
   </ItemGroup>
 </Project>

@@ -147,6 +147,17 @@ void MainForm::InitWindow()
 		}
 		return true;
 	});
+	Button *btn_insert_row = static_cast<Button*>(FindControl(L"btn_insert_row"));
+	Button *btn_insert_col = static_cast<Button*>(FindControl(L"btn_insert_col"));
+	btn_insert_row->AttachClick([this, grid](ui::EventArgs* args){
+		grid->AddRow();
+		return true;
+	});
+	btn_insert_col->AttachClick([this, grid](ui::EventArgs* args){
+		grid->AddCol(L"");
+		return true;
+	});
+
 
 	Button *btn_add_row = static_cast<Button*>(FindControl(L"btn_add_row"));
 	Button *btn_remove_row = static_cast<Button*>(FindControl(L"btn_remove_row"));

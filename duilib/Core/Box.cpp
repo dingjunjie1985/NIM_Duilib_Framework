@@ -594,6 +594,10 @@ bool Box::Remove(Control* pControl)
 				if( m_bDelayedDestroy && m_pWindow ) m_pWindow->AddDelayedCleanup(pControl);             
 				else delete pControl;
 			}
+			else{		//add by djj
+				if (m_pWindow)
+					m_pWindow->ReapObjects(pControl);
+			}
 			m_items.erase(it);
 			return true;
 		}
@@ -707,10 +711,11 @@ bool Box::PopWindow(std::wstring title)
 		return false;
 	SetAutoDestroyChild(false);
 	assert(m_pParent);
-	if (m_pParent)
+	if (m_pParent && m_pWindow)
 	{
 		m_pParent->SetAutoDestroyChild(false);
 		m_pParent->Remove(this);
+		m_pWindow->ReapObjects(this);
 		DragPopWindow::CreateAndShow(this);
 	}
 
