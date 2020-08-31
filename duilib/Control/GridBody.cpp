@@ -1,7 +1,10 @@
 #include "StdAfx.h"
 #include "GridBody.h"
+
+#ifdef _GRID_LOAD_EXCEL_
 #include "libxl.h"
 #include <sstream>
+#endif
 
 
 namespace ui
@@ -828,6 +831,10 @@ namespace ui
 
 	bool GridBody::LoadExcel(std::wstring file, int sheet_num, bool touch_header)
 	{
+#ifndef _GRID_LOAD_EXCEL_
+		printf("\n******warning GridBody::LoadExcel fail, undefine _GRID_LOAD_EXCEL_!!!******\n");
+		return false;
+#else
 		auto dealNumberD2 = [](double d) -> std::wstring {
 			std::wostringstream out;
 			out.precision(std::numeric_limits<double>::digits10);
@@ -974,6 +981,7 @@ namespace ui
 
 		}
 		return ret;
+#endif
 	}
 
 	bool GridBody::AutoFixColWidth(int col_index, int min_width, int max_width)

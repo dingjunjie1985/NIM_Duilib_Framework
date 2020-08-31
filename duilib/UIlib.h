@@ -138,6 +138,8 @@
 #include "Control/RichEdit.h"
 #include "Control/VirtualListBox.h"
 
+
+//#define _GRID_LOAD_EXCEL_
 #include "Control/Grid.h"
 #include "Control/GridBody.h"
 

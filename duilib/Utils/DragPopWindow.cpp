@@ -21,6 +21,7 @@ namespace ui{
 			int nWidth = m_pBox->GetWidth();
 			int nHeight = m_pBox->GetHeight();
 			root->Add(m_pBox);
+			m_pBox->SetAutoDestroyChild(true);
 			UiRect rc(0, 0, nWidth, nHeight + 35);
 			SetPos(rc, true, 0);
 		}

@@ -116,14 +116,36 @@ LRESULT CFilterComboWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
     }
 #if 1
-	else if (uMsg == WM_CHAR)
+	else if (uMsg == WM_CHAR || uMsg == WM_KEYDOWN || uMsg == WM_KEYUP)
 	{
 		if (m_pOwner)
 		{
 			EventArgs args;
 			args.pSender = m_pOwner->GetListBox();
 			args.chKey = wParam;
-			args.Type = kEventChar;
+			if (uMsg == WM_CHAR)
+				args.Type = kEventChar;
+			else if (uMsg == WM_KEYDOWN)
+				args.Type = kEventKeyDown;
+			else if (uMsg == WM_KEYUP)
+				args.Type = kEventKeyUp;
+			args.wParam = wParam;
+			args.lParam = lParam;
+			args.dwTimestamp = ::GetTickCount();
+			m_pOwner->HandleMessage(args);
+		}
+	}
+	else if (uMsg == WM_SYSKEYDOWN)
+	{
+		if (m_pOwner)
+		{
+			EventArgs args;
+			args.pSender = m_pOwner->GetListBox();
+			args.chKey = wParam;
+			args.Type = kEventSystemKey;
+			args.wParam = 0;
+			args.lParam = 0;
+			args.dwTimestamp = ::GetTickCount();
 			m_pOwner->HandleMessage(args);
 		}
 	}
@@ -258,30 +280,9 @@ FilterCombo::FilterCombo() :
 
 void FilterCombo::HandleMessage(EventArgs& args)
 {
-	if (args.Type == kEventChar)
+	if (args.Type == kEventChar || args.Type == kEventKeyDown)
 	{
-		if (args.chKey > 31)
-		{
-			if (m_iCurSel >= 0)
-			{
-				m_pRichEdit->SetText(std::wstring(L"") + args.chKey);
-				m_pLayout->SelectItem(-1, false);
-				m_iCurSel = -1;
-			}
-			else
-			{
-				m_pRichEdit->SetText(m_pRichEdit->GetText() + args.chKey);
-			}
-		}
-		else if (args.chKey == 8)	//ÍË¸ñ¼ü
-		{
-			if (args.pSender == m_pLayout.get())
-			{
-				m_pRichEdit->SetText(L"");
-				m_pLayout->SelectItem(-1, false);
-				m_iCurSel = -1;
-			}	
-		}
+		m_pRichEdit->HandleMessage(args);
 	}
 	return __super::HandleMessage(args);
 }

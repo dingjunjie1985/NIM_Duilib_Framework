@@ -709,7 +709,7 @@ bool Box::PopWindow(std::wstring title)
 	bool ret = false;
 	if (!IsPopWindowEnabled())
 		return false;
-	SetAutoDestroyChild(false);
+	//SetAutoDestroyChild(false);
 	assert(m_pParent);
 	if (m_pParent && m_pWindow)
 	{
