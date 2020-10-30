@@ -94,6 +94,7 @@ Window::~Window()
 
 	delete m_pRoot;
 	::DeleteObject(m_defaultFontInfo.hFont);
+	RemoveAllFonts();
 	RemoveAllClass();
 	RemoveAllOptionGroups();
 
@@ -456,6 +457,8 @@ void Window::ReapObjects(Control* pControl)
 	}
 
 #if 1	//add by djj 20200718
+	pControl->DetachAllEvent();
+
 	Box *box = dynamic_cast<Box*>(pControl);
 	if (box)
 	{
@@ -489,6 +492,99 @@ TFontInfo* Window::GetDefaultFontInfo()
 		::SelectObject(m_hDcPaint, hOldFont);
 	}
 	return &m_defaultFontInfo;
+}
+
+HFONT Window::AddFont(const std::wstring& strFontId, const std::wstring& strFontName, int nSize, bool bBold, bool bUnderline, bool bStrikeout, bool bItalic, bool bDefault)
+{
+	std::wstring strNewFontId = strFontId;
+	if (strNewFontId.empty())
+	{
+		strNewFontId = std::to_wstring(m_fontHash.size());
+	}
+
+	auto iter = m_fontHash.find(strNewFontId);
+	ASSERT(iter == m_fontHash.end());
+
+	static bool bOsOverXp = IsWindowsVistaOrGreater();
+	std::wstring fontName = strFontName;
+	if (fontName == L"system") {
+		fontName = bOsOverXp ? L"Î¢ÈíÑÅºÚ" : L"ÐÂËÎÌå";
+	}
+
+	LOGFONT lf = { 0 };
+	::GetObject(::GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
+	_tcscpy(lf.lfFaceName, fontName.c_str());
+	lf.lfCharSet = DEFAULT_CHARSET;
+	lf.lfHeight = -DpiManager::GetInstance()->ScaleInt(nSize);
+	if (bBold) lf.lfWeight += FW_BOLD;
+	if (bUnderline) lf.lfUnderline = TRUE;
+	if (bStrikeout) lf.lfStrikeOut = TRUE;
+	if (bItalic) lf.lfItalic = TRUE;
+	HFONT hFont = ::CreateFontIndirect(&lf);
+	if (hFont == NULL) return NULL;
+
+	TFontInfo* pFontInfo = new TFontInfo;
+	if (!pFontInfo) return false;
+	pFontInfo->hFont = hFont;
+	pFontInfo->sFontName = fontName;
+	pFontInfo->iSize = nSize;
+	pFontInfo->bBold = bBold;
+	pFontInfo->bUnderline = bUnderline;
+	pFontInfo->bStrikeout = bStrikeout;
+	pFontInfo->bItalic = bItalic;
+	::ZeroMemory(&pFontInfo->tm, sizeof(pFontInfo->tm));
+
+	m_fontHash.insert(std::make_pair(strNewFontId, pFontInfo));
+
+	if (bDefault) m_defaultFontInfo = *pFontInfo;
+
+	return hFont;
+}
+
+bool Window::RemoveFont(const std::wstring& strFontId)
+{
+	auto iter = m_fontHash.find(strFontId);
+	if (iter == m_fontHash.end()) return false;
+
+	TFontInfo* pFontInfo = static_cast<TFontInfo*>(iter->second);
+	::DeleteObject(pFontInfo->hFont);
+	delete pFontInfo;
+
+	m_fontHash.erase(iter);
+
+	return true;
+}
+
+void Window::RemoveAllFonts()
+{
+	for (auto it = m_fontHash.begin(); it != m_fontHash.end(); it++) {
+		auto pFontInfo = it->second;
+		::DeleteObject(pFontInfo->hFont);
+		delete pFontInfo;
+	}
+	m_fontHash.clear();
+}
+
+void Window::AddTextColor(const std::wstring& strName, const std::wstring& strValue)
+{
+	std::wstring strColor = strValue.substr(1);
+	LPTSTR pstr = NULL;
+	DWORD dwBackColor = _tcstoul(strColor.c_str(), &pstr, 16);
+
+	m_colorHash[strName] = dwBackColor;
+}
+
+void Window::RemoveAllTextColors()
+{
+	m_colorHash.clear();
+}
+
+DWORD Window::GetTextColor(const std::wstring& strName)
+{
+	DWORD dwColor = 0;
+	if (m_colorHash.find(strName) != m_colorHash.cend())
+		dwColor = m_colorHash.find(strName)->second;
+	return dwColor;
 }
 
 void Window::AddClass(const std::wstring& strClassName, const std::wstring& strControlAttrList)

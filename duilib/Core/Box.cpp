@@ -744,6 +744,13 @@ UiRect Box::GetPaddingPos() const
 	return pos;
 }
 
+void Box::DetachAllEvent()
+{
+	__super::DetachAllEvent();
+	OnBubbledEvent.clear();
+	//OnXmlBubbledEvent.clear();		//这几个不确定要不要清除
+}
+
 void Box::InvokeLoadImageCache()
 {
 	__super::InvokeLoadImageCache();

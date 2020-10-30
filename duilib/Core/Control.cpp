@@ -138,6 +138,16 @@ void Control::SetStateColor(ControlStateType stateType, const std::wstring& strC
 	Invalidate();
 }
 
+DWORD Control::GetTextColor(const std::wstring& strName)
+{
+	DWORD dwColor = 0;
+	if (m_pWindow)
+		dwColor = m_pWindow->GetTextColor(strName);
+	if (dwColor == 0)
+		dwColor = GlobalManager::GetTextColor(strName);
+	return dwColor;
+}
+
 std::wstring Control::GetBkImage() const
 {
 	return m_bkImage.imageAttribute.simageString;
@@ -1140,9 +1150,11 @@ void Control::SetClass(const std::wstring& strClass)
 {
 	std::list<std::wstring> splitList = StringHelper::Split(strClass, L" ");
 	for (auto it = splitList.begin(); it != splitList.end(); it++) {
-		std::wstring pDefaultAttributes = GlobalManager::GetClassAttributes((*it));
-		if (pDefaultAttributes.empty() && m_pWindow) {
+		std::wstring pDefaultAttributes;
+		if (m_pWindow)
 			pDefaultAttributes = m_pWindow->GetClassAttributes(*it);
+		if (pDefaultAttributes.empty()) {
+			pDefaultAttributes = GlobalManager::GetClassAttributes((*it));
 		}
 
 		ASSERT(!pDefaultAttributes.empty());
@@ -1688,6 +1700,13 @@ void Control::DetachEvent(EventType type)
 	{
 		OnEvent.erase(event);
 	}
+}
+
+void Control::DetachAllEvent()
+{
+	OnXmlEvent.clear();
+	OnEvent.clear();
+	OnGifEvent.clear();
 }
 
 } // namespace ui

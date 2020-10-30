@@ -104,7 +104,9 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\bin\resources\themes\default\chart\main_form.xml" />
+    <Xml Include="..\..\bin\resources\themes\default\chart\main_form.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

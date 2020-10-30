@@ -40,6 +40,6 @@ public:
 	static const std::wstring kClassName;
 
 private:
-	ui::TreeView *tree_;
+
 };
 

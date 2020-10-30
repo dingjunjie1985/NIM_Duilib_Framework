@@ -302,6 +302,12 @@ public:
 	 */
 	void AttachBubbledEvent(EventType eventType, const EventCallback& callback)	{ OnBubbledEvent[eventType] += callback; }
 
+	/** add by djj 20200901
+	* @brief 取消所有监听指定事件,
+	* @return 无
+	*/
+	virtual void DetachAllEvent() override;
+
 private:
 	friend WindowBuilder;
 

@@ -311,6 +311,67 @@ Box* WindowBuilder::Create(CreateControlCallback pCallback, Window* pManager, Bo
 						pManager->AddClass(strClassName, strAttribute);
 					}
 				}
+				else if (strClass == _T("Font")) {
+					nAttributes = node.GetAttributeCount();
+					std::wstring strFontId;
+					std::wstring strFontName;
+					int size = 12;
+					bool bold = false;
+					bool underline = false;
+					bool strikeout = false;
+					bool italic = false;
+					bool isDefault = false;
+					for (int i = 0; i < nAttributes; i++) {
+						strName = node.GetAttributeName(i);
+						strValue = node.GetAttributeValue(i);
+						if (strName == _T("id"))
+						{
+							strFontId = strValue;
+						}
+						else if (strName == _T("name")) {
+							strFontName = strValue;
+						}
+						else if (strName == _T("size")) {
+							size = _tcstol(strValue.c_str(), &pstr, 10);
+						}
+						else if (strName == _T("bold")) {
+							bold = (strValue == _T("true"));
+						}
+						else if (strName == _T("underline")) {
+							underline = (strValue == _T("true"));
+						}
+						else if (strName == _T("strikeout")) {
+							strikeout = (strValue == _T("true"));
+						}
+						else if (strName == _T("italic")) {
+							italic = (strValue == _T("true"));
+						}
+						else if (strName == _T("default")) {
+							isDefault = (strValue == _T("true"));
+						}
+					}
+					if (!strFontName.empty()) {
+						pManager->AddFont(strFontId, strFontName, size, bold, underline, strikeout, italic, isDefault);
+					}
+				}
+				else if (strClass == _T("TextColor")) {
+					nAttributes = node.GetAttributeCount();
+					std::wstring strColorName;
+					std::wstring strColor;
+					for (int i = 0; i < nAttributes; i++) {
+						strName = node.GetAttributeName(i);
+						strValue = node.GetAttributeValue(i);
+						if (strName == _T("name")) {
+							strColorName = strValue;
+						}
+						else if (strName == _T("value")) {
+							strColor = strValue;
+						}
+					}
+					if (!strColorName.empty()) {
+						pManager->AddTextColor(strColorName, strColor);
+					}
+				}
 			}
 		}
 	}

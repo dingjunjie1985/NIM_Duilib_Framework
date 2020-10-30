@@ -52,6 +52,9 @@
     <Filter Include="comboex">
       <UniqueIdentifier>{f49e1718-de9f-477c-bad3-d20cf5d3be1e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="chart">
+      <UniqueIdentifier>{94a1c7e0-fd5b-4cd9-b2a5-0dc7dea38e8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -147,6 +150,15 @@
     <ClInclude Include="menu\ui_menu.h">
       <Filter>menu</Filter>
     </ClInclude>
+    <ClInclude Include="chart\ChartBase.h">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="chart\Chart.h">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="chart\Coordinate.h">
+      <Filter>chart</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -223,6 +235,15 @@
     </ClCompile>
     <ClCompile Include="menu\ui_menu.cpp">
       <Filter>menu</Filter>
+    </ClCompile>
+    <ClCompile Include="chart\ChartBase.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="chart\Chart.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="chart\Coordinate.cpp">
+      <Filter>chart</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

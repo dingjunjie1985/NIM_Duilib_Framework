@@ -74,6 +74,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(ProjectDir)..\tmp\$(PlatformName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)..\libs\</OutDir>
+    <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -184,6 +185,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cef_control\util\auto_unregister.h" />
+    <ClInclude Include="chart\Chart.h" />
+    <ClInclude Include="chart\ChartBase.h" />
+    <ClInclude Include="chart\Coordinate.h" />
     <ClInclude Include="comboex\CheckCombo.h" />
     <ClInclude Include="comboex\FilterCombo.h" />
     <ClInclude Include="menu\observer_impl_base.hpp" />
@@ -229,6 +233,9 @@
     <ClCompile Include="cef_control\handler\browser_handler.cpp" />
     <ClCompile Include="cef_control\manager\cef_manager.cpp" />
     <ClCompile Include="cef_control\util\memory_dc.cpp" />
+    <ClCompile Include="chart\Chart.cpp" />
+    <ClCompile Include="chart\ChartBase.cpp" />
+    <ClCompile Include="chart\Coordinate.cpp" />
     <ClCompile Include="comboex\CheckCombo.cpp" />
     <ClCompile Include="comboex\FilterCombo.cpp" />
     <ClCompile Include="menu\ui_menu.cpp" />

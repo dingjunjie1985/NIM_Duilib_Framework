@@ -56,6 +56,13 @@ public:
 	void SetStateColor(ControlStateType stateType, const std::wstring& strColor);
 
 	/**
+	* @brief 根据名称获取一个颜色的具体数值
+	* @param[in] strName 要获取的颜色名称
+	* @return 返回 DWORD 格式的颜色描述值
+	*/
+	DWORD GetTextColor(const std::wstring& strName);
+
+	/**
 	 * @brief 获取背景图片位置
 	 * @return 背景图片位置  
 	 */
@@ -853,6 +860,12 @@ public:
 	 * @return 无
 	 */
 	void DetachEvent(EventType type);
+
+	/** add by djj 20200901
+	* @brief 取消所有监听指定事件, 
+	* @return 无
+	*/
+	virtual void DetachAllEvent();
 
 protected:
 	friend WindowBuilder;

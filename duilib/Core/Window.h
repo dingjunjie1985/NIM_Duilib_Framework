@@ -265,11 +265,61 @@ public:
 	TFontInfo* GetDefaultFontInfo();
 
 	/**
-	 * @brief 添加一个通用样式
-	 * @param[in] strClassName 通用样式的名称
-	 * @param[in] strControlAttrList 通用样式的 XML 转义格式数据
-	 * @return 无
-	 */
+	* @brief 添加一个字体
+	* @param[in] strFontId 指定字体的ID标记
+	* @param[in] strFontName 字体名称
+	* @param[in] nSize 字体大小
+	* @param[in] bBold 是否粗体
+	* @param[in] bUnderline 是否有下划线
+	* @param[in] bStrikeout 是否带有删除线
+	* @param[in] bItalic 是否倾斜
+	* @param[in] bDefault 是否默认
+	* @return 返回字体的 HFONT 句柄
+	*/
+	HFONT AddFont(const std::wstring& strFontId, const std::wstring& strFontName, int nSize, bool bBold, bool bUnderline, bool bStrikeout, bool bItalic, bool bDefault);
+
+	/**
+	* @brief 根据字体索引删除字体
+	* @param[in] strFontId 字体ID
+	* @return 返回是否删除成功
+	*     @retval true 删除成功
+	*     @retval false 字体不存在或删除失败
+	*/
+	bool RemoveFont(const std::wstring& strFontId);
+
+	/**
+	* @brief 删除所有字体
+	* @return 无
+	*/
+	void RemoveAllFonts();
+
+	/**
+	* @brief 添加一个全局颜色值提供程序使用
+	* @param[in] strName 颜色名称（如 white）
+	* @param[in] strValue 颜色具体数值（如 #FFFFFFFF）
+	* @return 无
+	*/
+	void AddTextColor(const std::wstring& strName, const std::wstring& strValue);
+
+	/**
+	* @brief 删除所有全局颜色属性
+	* @return 无
+	*/
+	void RemoveAllTextColors();
+
+	/**
+	* @brief 根据名称获取一个颜色的具体数值
+	* @param[in] strName 要获取的颜色名称
+	* @return 返回 DWORD 格式的颜色描述值
+	*/
+	DWORD GetTextColor(const std::wstring& strName);
+
+	/**
+	* @brief 添加一个通用样式
+	* @param[in] strClassName 通用样式的名称
+	* @param[in] strControlAttrList 通用样式的 XML 转义格式数据
+	* @return 无
+	*/
 	void AddClass(const std::wstring& strClassName, const std::wstring& strControlAttrList);
 
 	/**
@@ -932,6 +982,8 @@ protected:
 
 	std::wstring m_strWindowResourcePath; //每个窗口的资源路径,等于GetSkinFolder()
 	TFontInfo m_defaultFontInfo;
+	std::map<std::wstring, DWORD> m_colorHash;
+	std::map<std::wstring, TFontInfo*> m_fontHash;
 	std::map<std::wstring, std::wstring> m_defaultAttrHash;
 	std::map<std::wstring, std::vector<Control*>> m_mOptionGroup;
 

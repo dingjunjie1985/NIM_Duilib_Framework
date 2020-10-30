@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Window size="900,600" caption="0,0,0,35" sizebox="4,4,4,4">
+  <TextColor name="bk_dark" value="#ff121a19"/>
+  <TextColor name="bk_light" value="#ff172422"/>
+  <TextColor name="color_sep_line" value="#ff193d37"/>
+  <TextColor name="color_yellow" value="#ffff9200"/>
+  <TextColor name="color_pink" value="#ffd4237a"/>
+  <TextColor name="color_text" value="#ff8f9598"/>
+
   <VBox bkcolor="bk_wnd_darkcolor">
     <HBox width="stretch" height="35" bkcolor="bk_wnd_lightcolor">
       <Control />
@@ -15,7 +22,7 @@
       <Button class="btn_global_blue" name="btn_insert_col" width="80" height="20" margin="10,0" align="hcenter" text="插入列4"/>
     </HBox>
     <HBox name="hbox_pop" popwindow="true">
-      <Chart name="chart" width="400" height="300" margin="10,10,10,30" bordercolor="gray" bordersize="1"/>
+      <Chart name="chart" width="600" height="400" margin="100,100,10,30" bordercolor="gray" bordersize="1"/>
       <VBox width="80" margin="10,30,10,30" visible ="false">
         <Label height="18" margin="0,10" text="row:"/>
         <RichEdit class="simple prompt" name="re_row" height="20" margin="0,10" number="true" prompttext="row"/>
